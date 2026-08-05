@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>브로우 아카이브 빌더 — 반영구 눈썹 랜딩페이지 만들기</title>
-<meta name="description" content="반영구 눈썹 시술자를 위한 랜딩페이지 빌더. 내용을 채우면 전환 구조가 잡힌 페이지가 만들어지고, 깃헙 페이지나 Netlify에 파일만 올리면 바로 공개됩니다. 설치 없이 브라우저에서 동작합니다.">
+<meta name="description" content="반영구 눈썹 시술자를 위한 랜딩페이지 빌더. 내용을 채우면 전환 구조가 잡힌 페이지가 만들어지고, 만들어진 파일 하나를 무료 호스팅에 올리면 바로 공개됩니다. 설치 없이 브라우저에서 동작합니다.">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#191817">
 <meta name="robots" content="index,follow">
@@ -13,11 +13,11 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="브로우 아카이브 빌더">
 <meta property="og:title" content="브로우 아카이브 빌더 — 반영구 눈썹 랜딩페이지 만들기">
-<meta property="og:description" content="반영구 눈썹 시술자를 위한 랜딩페이지 빌더. 내용을 채우면 전환 구조가 잡힌 페이지가 만들어지고, 깃헙 페이지나 Netlify에 파일만 올리면 바로 공개됩니다. 설치 없이 브라우저에서 동작합니다.">
+<meta property="og:description" content="반영구 눈썹 시술자를 위한 랜딩페이지 빌더. 내용을 채우면 전환 구조가 잡힌 페이지가 만들어지고, 만들어진 파일 하나를 무료 호스팅에 올리면 바로 공개됩니다. 설치 없이 브라우저에서 동작합니다.">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="브로우 아카이브 빌더 — 반영구 눈썹 랜딩페이지 만들기">
-<meta name="twitter:description" content="반영구 눈썹 시술자를 위한 랜딩페이지 빌더. 내용을 채우면 전환 구조가 잡힌 페이지가 만들어지고, 깃헙 페이지나 Netlify에 파일만 올리면 바로 공개됩니다. 설치 없이 브라우저에서 동작합니다.">
+<meta name="twitter:description" content="반영구 눈썹 시술자를 위한 랜딩페이지 빌더. 내용을 채우면 전환 구조가 잡힌 페이지가 만들어지고, 만들어진 파일 하나를 무료 호스팅에 올리면 바로 공개됩니다. 설치 없이 브라우저에서 동작합니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -379,7 +379,6 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
       <div class="ed__sub">챕터는 끌어서 순서를 바꾸고, 스위치로 껐다 켤 수 있습니다. 제목도 원하는 말로 바꾸세요.</div>
       <div class="ed__acts">
         <button class="b b--go" id="btn-export">페이지 내려받기</button>
-        <button class="b b--go" id="btn-repo">깃헙용 폴더</button>
         <button class="b" id="btn-deploy">배포하는 법</button>
         <button class="b" id="btn-save">설정 저장</button>
         <button class="b" id="btn-load">불러오기</button>
@@ -580,7 +579,7 @@ var DEFAULT = {
   end:{
     title:'사진 한 장이면 상담이 시작됩니다.',
     txt:'지금 눈썹 사진을 보내주시면 가능 여부와 예상 회차, 금액을 먼저 알려드립니다. 방문은 그 다음에 결정하셔도 됩니다.',
-    site:'', cta:'무료로 상담받기', telOn:true,
+    cta:'무료로 상담받기', telOn:true,
     dockOn:true, dockKakao:true, dockInsta:true, dockPlace:true
   }
 };
@@ -928,7 +927,7 @@ function renderEditor(){
     '<div class="row2">'+T('brand.name','스튜디오 이름')+T('brand.latin','영문 표기')+'</div>'+
     T('contact.kakao','카카오톡 채널 링크')+T('contact.insta','인스타그램')+T('contact.place','네이버 플레이스 · 지도 링크')+
     '<div class="row2">'+T('contact.phone','전화')+T('contact.hours','영업시간')+'</div>'+
-    T('contact.addr','주소')+T('end.site','사이트 주소 (예: https://내이름.github.io/brow)')+
+    T('contact.addr','주소')+
     HINT('고정 바는 화면 아래 양끝까지 닿는 띠로 스크롤 내내 따라옵니다. 켜둔 버튼만 들어가고, 주소를 비운 버튼은 자동으로 빠집니다. 세 개를 다 켜면 좁은 화면에서 글자가 줄어드니 두 개까지가 무난합니다. 카카오톡은 채워진 상태로 남아 어느 것이 주된 행동인지 드러납니다.'), op['end']));
 
   document.getElementById('ed-body').innerHTML = h.join('');
@@ -1052,8 +1051,7 @@ fImg.addEventListener('change', function(){
   fr.readAsDataURL(f);
 });
 
-function buildDoc(c, opt){
-  opt = opt || {};
+function buildDoc(c){
   var css=document.getElementById('page-css').textContent, js=document.getElementById('page-js').textContent;
   var desc=String(c.head.txt).replace(/\s+/g,' ').slice(0,150);
   var title=c.brand.name+(c.head.spec?' — '+c.head.spec:'');
@@ -1066,124 +1064,16 @@ function buildDoc(c, opt){
   '<title>'+esc(title)+'</title>\n<meta name="description" content="'+esc(desc)+'">\n'+
   '<meta property="og:title" content="'+esc(title)+'">\n<meta property="og:description" content="'+esc(desc)+'">\n'+
   '<meta property="og:type" content="website">\n<meta name="theme-color" content="'+derive(c.tone).paper+'">\n'+
-  (opt.site?'<link rel="canonical" href="'+esc(opt.site)+'/">\n<meta property="og:url" content="'+esc(opt.site)+'/">\n':'')+
-  (opt.site && opt.hero?'<meta property="og:image" content="'+esc(opt.site)+'/'+esc(opt.hero)+'">\n':'')+
-  (opt.hero?'<link rel="preload" as="image" href="'+esc(opt.hero)+'" fetchpriority="high">\n':'')+
   '<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'+
   '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">\n'+
   '<script type="application/ld+json">'+JSON.stringify(ld)+'<\/script>\n'+
   '<style>html,body{margin:0;padding:0;background:'+derive(c.tone).paper+';-webkit-text-size-adjust:100%}\n'+css+'</style>\n</head>\n<body>\n'+
   '<div class="lp" style="'+toneVars(c)+'">'+renderPage(c)+'</div>\n<script>'+js+'<\/script>\n</body>\n</html>';
 }
-/* ---------- 압축 없는 ZIP (사진은 이미 압축돼 있어 손해가 없다) ---------- */
-var CRC = (function(){ var t=[],c,n,k;
-  for(n=0;n<256;n++){ c=n; for(k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; }
-  return t; })();
-function crc32(u){ var c=0xFFFFFFFF; for(var i=0;i<u.length;i++) c=CRC[(c^u[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
-function utf8(str){ return new TextEncoder().encode(str); }
-function dataToU8(d){
-  var b = String(d).split(',')[1] || '', bin = atob(b), u = new Uint8Array(bin.length);
-  for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u;
-}
-function zip(files){
-  var parts=[], central=[], off=0;
-  function w16(v){ return [v&0xFF,(v>>>8)&0xFF]; }
-  function w32(v){ return [v&0xFF,(v>>>8)&0xFF,(v>>>16)&0xFF,(v>>>24)&0xFF]; }
-  var d=new Date();
-  var dTime=((d.getHours()&31)<<11)|((d.getMinutes()&63)<<5)|((d.getSeconds()/2)&31);
-  var dDate=(((d.getFullYear()-1980)&127)<<9)|(((d.getMonth()+1)&15)<<5)|(d.getDate()&31);
-  files.forEach(function(f){
-    var name=utf8(f.name), data=f.data, c=crc32(data);
-    var local=[].concat([0x50,0x4b,0x03,0x04], w16(20), w16(0x0800), w16(0), w16(dTime), w16(dDate),
-      w32(c), w32(data.length), w32(data.length), w16(name.length), w16(0));
-    parts.push(new Uint8Array(local), name, data);
-    central.push({name:name, crc:c, size:data.length, off:off});
-    off += local.length + name.length + data.length;
-  });
-  var cd=[];
-  central.forEach(function(e){
-    cd = cd.concat([0x50,0x4b,0x01,0x02], w16(20), w16(20), w16(0x0800), w16(0), w16(dTime), w16(dDate),
-      w32(e.crc), w32(e.size), w32(e.size), w16(e.name.length), w16(0), w16(0), w16(0), w16(0), w32(0), w32(e.off));
-    cd = cd.concat(Array.from(e.name));
-  });
-  var cdU = new Uint8Array(cd);
-  var end = new Uint8Array([].concat([0x50,0x4b,0x05,0x06], w16(0), w16(0),
-    w16(central.length), w16(central.length), w32(cdU.length), w32(off), w16(0)));
-  return new Blob(parts.concat([cdU, end]), {type:'application/zip'});
-}
-
-/* ---------- 깃헙에 그대로 올릴 수 있는 폴더 ---------- */
-function buildRepo(){
-  var c = JSON.parse(JSON.stringify(cfg));
-  var assets = [], seen = {}, n = 0, hero = '';
-
-  function walk(o){
-    if(!o || typeof o !== 'object') return;
-    Object.keys(o).forEach(function(k){
-      var v = o[k];
-      if(typeof v === 'string' && v.indexOf('data:image/') === 0){
-        if(seen[v]){ o[k] = seen[v]; return; }
-        n++;
-        var ext = (v.slice(11).split(';')[0] || 'jpg').replace('jpeg','jpg');
-        var name = 'assets/' + String(n).padStart(2,'0') + '-' + k + '.' + ext;
-        assets.push({name:name, data:dataToU8(v)});
-        seen[v] = name; o[k] = name;
-        if(!hero) hero = name;
-      } else if(v && typeof v === 'object') walk(v);
-    });
-  }
-  walk(c);
-  if(c.head && typeof c.head.bg === 'string' && c.head.bg.indexOf('assets/') === 0) hero = c.head.bg;
-
-  var site = String(c.end.site||'').trim().replace(/\/+$/,'');
-  var html = buildDoc(c, {site:site, hero:hero});
-  var today = new Date().toISOString().slice(0,10);
-
-  var files = [
-    {name:'index.html', data:utf8(html)},
-    {name:'.nojekyll', data:new Uint8Array(0)},
-    {name:'404.html', data:utf8('<!doctype html><meta charset="utf-8">'+
-      '<meta http-equiv="refresh" content="0; url=./"><title>이동 중</title><a href="./">첫 화면으로</a>')},
-    {name:'robots.txt', data:utf8('User-agent: *\nAllow: /\n'+(site?'Sitemap: '+site+'/sitemap.xml\n':''))},
-    {name:'README.md', data:utf8(
-      '# '+c.brand.name+'\n\n'+
-      '반영구 눈썹 랜딩페이지. 브로우 아카이브 빌더로 만들었습니다.\n\n'+
-      '## 올리는 법\n\n'+
-      '1. 깃헙에서 새 저장소를 만듭니다 (Public).\n'+
-      '2. 이 폴더 안의 파일을 전부 저장소 최상단에 올립니다. `.nojekyll` 도 빠뜨리지 마세요.\n'+
-      '3. Settings → Pages → Source 를 `Deploy from a branch`, 브랜치를 `main` / `(root)` 로 지정합니다.\n'+
-      '4. 1–2분 뒤 주소가 열립니다.\n\n'+
-      '## 고칠 때\n\n'+
-      '빌더에서 `설정 저장`으로 받아둔 `landing-settings.json` 을 다시 불러와 수정한 뒤,\n'+
-      '`깃헙용 폴더`를 다시 받아 덮어쓰면 됩니다.\n\n'+
-      '## 담긴 것\n\n'+
-      '- `index.html` — 페이지 전체\n'+
-      '- `assets/` — 사진 '+assets.length+'장\n'+
-      '- `.nojekyll` — 깃헙이 파일을 건드리지 않게 하는 표시\n'+
-      '- `robots.txt`, `sitemap.xml` — 검색 등록용\n'+
-      '- `404.html` — 없는 주소로 들어왔을 때 첫 화면으로 보냄\n')},
-    {name:'landing-settings.json', data:utf8(JSON.stringify(cfg,null,2))}
-  ];
-  if(site) files.push({name:'sitemap.xml', data:utf8(
-    '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+
-    '  <url><loc>'+site+'/</loc><lastmod>'+today+'</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>\n'+
-    '</urlset>\n')});
-  files = files.concat(assets);
-
-  var b = zip(files), u = URL.createObjectURL(b), a = document.createElement('a');
-  a.href=u; a.download=(c.brand.latin||'landing').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-github.zip';
-  document.body.appendChild(a); a.click();
-  setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 600);
-  toast('사진 '+assets.length+'장 포함 · 폴더를 내려받았습니다'+(site?'':' (사이트 주소를 넣으면 sitemap 도 함께 생깁니다)'));
-}
-
 function dl(n,t,ty){ var b=new Blob([t],{type:ty||'text/plain;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');
   a.href=u; a.download=n; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(u);a.remove();},400); }
 
 document.getElementById('btn-export').onclick=function(){ dl('index.html',buildDoc(cfg),'text/html;charset=utf-8'); toast('index.html 을 내려받았습니다'); };
-document.getElementById('btn-repo').onclick=function(){
-  try{ buildRepo(); }catch(err){ console.error(err); toast('만드는 중 문제가 생겼습니다'); }
-};
 document.getElementById('btn-save').onclick=function(){ dl('landing-settings.json',JSON.stringify(cfg,null,2),'application/json'); toast('설정을 저장했습니다'); };
 var fJson=document.getElementById('file-json');
 document.getElementById('btn-load').onclick=function(){ fJson.value=''; fJson.click(); };
@@ -1199,24 +1089,15 @@ fJson.addEventListener('change', function(){
 var modal=document.getElementById('modal');
 document.getElementById('btn-deploy').onclick=function(){
   document.getElementById('modal-in').innerHTML=
-  '<h3>페이지 올리는 법</h3>'+
-  '<p>내려받는 방식이 두 가지입니다. 어디에 올릴지에 따라 고르세요.</p>'+
+  '<h3>무료로 페이지 올리기</h3>'+
+  '<p>내려받은 <code>index.html</code> 하나면 됩니다. 사진도 파일 안에 들어 있어서 따로 올릴 것이 없습니다.</p>'+
   '<ol>'+
-  '<li><b>깃헙용 폴더 — 깃헙 페이지에 올릴 때</b><br>'+
-  '사진이 <code>assets/</code> 폴더로 따로 빠지고 <code>.nojekyll</code>, <code>robots.txt</code>, <code>sitemap.xml</code>, <code>404.html</code>, <code>README.md</code> 가 함께 들어갑니다. '+
-  '압축을 풀어 저장소 최상단에 올린 뒤 Settings → Pages → Source 를 <code>main</code> / <code>(root)</code> 로 지정하면 끝입니다.</li>'+
-  '<li><b>페이지 내려받기 — 파일 하나로 끝낼 때</b><br>'+
-  '사진까지 <code>index.html</code> 안에 들어간 한 개 파일입니다. '+
-  '<a href="https://app.netlify.com/drop" target="_blank" rel="noopener">Netlify Drop</a> 에 끌어다 놓으면 회원가입 없이 바로 주소가 생깁니다.</li>'+
+  '<li><b>가장 빠름 — Netlify Drop</b><br><a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a> 에 파일을 끌어다 놓으면 끝. 회원가입 없이 주소가 생깁니다.</li>'+
+  '<li><b>Cloudflare Pages</b><br>파일이 든 폴더를 업로드. 국내 속도가 가장 안정적입니다.</li>'+
+  '<li><b>Vercel</b><br>폴더를 끌어다 놓으면 배포. 도메인 연결이 편합니다.</li>'+
+  '<li><b>GitHub Pages</b><br>저장소에 올리고 Settings → Pages 에서 활성화.</li>'+
   '</ol>'+
-  '<p style="margin-top:18px"><b>깃헙 쪽이 더 빠른 이유</b><br>'+
-  '사진이 파일로 분리되면 브라우저가 각각을 따로 받아 캐시에 남깁니다. 두 번째 방문부터는 글만 새로 받습니다. '+
-  '한 파일 방식은 사진 한 장만 바꿔도 전체를 다시 받아야 합니다. 사진이 세 장을 넘어가면 차이가 눈에 띕니다.</p>'+
-  '<p style="margin-top:14px">저장소 이름을 <code>내아이디.github.io</code> 로 만들면 주소가 <code>https://내아이디.github.io</code> 가 됩니다. '+
-  '다른 이름이면 <code>https://내아이디.github.io/저장소이름</code> 이 되니, 마무리 챕터의 <b>사이트 주소</b> 칸에 그 주소를 그대로 넣어주세요. '+
-  'sitemap 과 공유 미리보기가 그 주소를 기준으로 만들어집니다.</p>'+
-  '<p style="margin-top:14px">도메인을 따로 사셨다면 저장소에 <code>CNAME</code> 파일을 하나 추가하고 도메인만 적으면 연결됩니다. '+
-  '그 다음 <b>Google Search Console</b> 과 <b>네이버 서치어드바이저</b> 에 주소를 등록하세요.</p>'+
+  '<p style="margin-top:18px">도메인은 가비아·후이즈에서 연 1–2만원대로 연결하고, <b>Google Search Console</b> 과 <b>네이버 서치어드바이저</b> 에 주소를 등록하세요.</p>'+
   '<p><button class="b b--go" onclick="document.getElementById(\'modal\').classList.remove(\'on\')">닫기</button></p>';
   modal.classList.add('on');
 };
