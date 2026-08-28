@@ -20,7 +20,7 @@
 <meta name="twitter:description" content="반영구 눈썹 시술자를 위한 랜딩페이지 빌더. 내용을 채우면 전환 구조가 잡힌 페이지가 만들어지고, 만들어진 파일 하나를 무료 호스팅에 올리면 바로 공개됩니다. 설치 없이 브라우저에서 동작합니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style id="page-css">
 /* ================= 랜딩페이지 — 아카이브 도록 ================= */
@@ -28,6 +28,7 @@
   --ink:#141414; --deep:#141414; --body:#3A3733; --muted:#7C766D;
   --paper:#F2F2EF; --panel:#EAE9E4; --rule:#D6D3CB; --paperA:rgba(242,242,239,.94);
   --sans:"IBM Plex Sans KR",system-ui,sans-serif;
+  --serif:"Noto Serif KR","IBM Plex Sans KR",Georgia,serif;
   --mono:"IBM Plex Mono","IBM Plex Sans KR",monospace;
   background:var(--paper); color:var(--body); font-family:var(--sans);
   line-height:1.82; -webkit-font-smoothing:antialiased; overflow-x:hidden;
@@ -44,6 +45,16 @@
 .lp a{color:inherit;text-decoration:none}
 .lp button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .lp :focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+
+/* 제목은 세리프로 변주를 준다 */
+.lp .head h1,
+.lp h2.t,
+.lp .end h2,
+.lp .pull{
+  font-family:var(--serif);
+  font-weight:600;
+  letter-spacing:-.02em;
+}
 
 .lp .wrap{width:100%;max-width:1000px;margin:0 auto;padding:0 28px}
 .lp .sec{padding:clamp(56px,7vw,88px) 0;border-top:1px solid var(--rule)}
@@ -74,20 +85,64 @@
 .lp .top__r nav a{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted)}
 .lp .top__r nav a:hover{color:var(--ink)}
 
-/* 판 — 사진 위에 글. 사진은 위, 글은 아래. 방향은 어느 화면에서나 같다 */
+/* ================= 판 — 사진·영상 위에 글 =================
+   사진이 깔린 구간은 어두운 막을 덮고 글자를 밝게 뒤집는다.
+   글이 길어져 위로 올라가도 막이 화면 전체에 깔려 있으므로 가려지지 않는다. */
 .lp .head{padding:64px 0 0;text-align:center}
 .lp .plate{position:relative;isolation:isolate;overflow:hidden;padding:0;display:flex;align-items:flex-end;
-  min-height:min(860px,88svh)}
-.lp .plate__bg{position:absolute;inset:0;background-position:center top;background-size:cover;z-index:-2}
-.lp .plate__sc{position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(180deg, transparent 0%, transparent 24%, var(--p3) 40%, var(--p7) 54%, var(--p9) 65%, var(--p10) 77%, var(--p10) 100%)}
-.lp .plate>.wrap{position:relative;padding-top:clamp(120px,24vh,280px);padding-bottom:clamp(52px,7vw,88px)}
+  min-height:min(1150px,105svh);
+  /* 이 구간 안에서만 색이 반전된다 */
+  --ink:#FFFFFF;
+  --body:rgba(255,255,255,.88);
+  --muted:rgba(255,255,255,.62);
+  --rule:rgba(255,255,255,.26);
+  --panel:rgba(255,255,255,.10);
+  --deep:#FFFFFF;
+  --paper:#141414;
+  color:var(--body);
+  border-top-color:transparent;
+  text-shadow:0 1px 3px rgba(0,0,0,.4);
+}
+.lp .plate__bg,.lp .plate__video{position:absolute;inset:0;background-position:center top;background-size:cover;z-index:-3}
+.lp .plate__video{width:100%;height:100%;object-fit:cover;object-position:center top}
+/* 막의 세기는 --sc 하나로 조절된다. 위는 옅게, 글이 놓이는 아래로 갈수록 짙게 */
+.lp .plate__sc{position:absolute;inset:0;z-index:-2;pointer-events:none;
+  background:linear-gradient(180deg,
+    rgba(0,0,0,calc(var(--sc,.45) * .60)) 0%,
+    rgba(0,0,0,calc(var(--sc,.45) * .50)) 26%,
+    rgba(0,0,0,calc(var(--sc,.45) * .95)) 58%,
+    rgba(0,0,0,calc(var(--sc,.45) * 1.35)) 82%,
+    rgba(0,0,0,calc(var(--sc,.45) * 1.55)) 100%)}
+/* 위아래 가장자리는 종이색으로 번지게 해서 앞뒤 구간과 이어 붙인다.
+   번짐 폭은 px 값과 높이 비율 중 작은 쪽을 써서, 짧은 구간에서도 글을 덮지 않는다 */
+.lp .plate__edge{position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    linear-gradient(180deg, var(--pg,#F2F2EF) 0, var(--pg0,rgba(242,242,239,0)) min(var(--ft,70px), 10%)),
+    linear-gradient(0deg,  var(--pg,#F2F2EF) 0, var(--pg0,rgba(242,242,239,0)) min(var(--fb,52px), 8%))}
+.lp .plate>.wrap{position:relative;padding-top:clamp(112px,14vh,180px);padding-bottom:clamp(88px,9vw,132px)}
 .lp .plate .txt{max-width:34em}
+/* 반전 구간의 버튼은 흰 바탕에 검은 글씨 */
+.lp .plate .go{text-shadow:none}
 .lp .head h1{font-size:clamp(28px,5.2vw,52px);font-weight:500;line-height:1.28;letter-spacing:-.03em;color:var(--ink);max-width:20ch;margin-inline:auto}
 .lp .head__sp{margin-top:20px;padding-top:14px;border-top:1px solid var(--rule);max-width:38em;margin-inline:auto}
 .lp .head .txt{margin-top:24px;max-width:34em;margin-inline:auto}
 .lp .head .en{margin-inline:auto}
 .lp .head .acts{justify-content:center}
+
+/* 스크롤 유도 아이콘 — 귀엽게 */
+.lp .scroll-hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;
+  display:grid;place-items:center;width:34px;height:34px;border-radius:50%;
+  border:1px solid var(--rule);background:var(--paperA);backdrop-filter:blur(4px);
+  transition:opacity .16s,transform .16s}
+.lp .scroll-hint:hover{opacity:.7}
+.lp .scroll-hint svg{width:16px;height:16px;color:var(--ink);animation:hint-float 1.8s ease-in-out infinite}
+/* 어두운 막 위에서는 아이콘도 반전 */
+.lp .plate .scroll-hint{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4)}
+.lp .plate .scroll-hint svg{color:#FFFFFF}
+@keyframes hint-float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(4px)}
+}
 
 .lp .ph{width:100%;background:var(--panel);display:grid;place-items:center;color:var(--muted);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em}
 
@@ -120,14 +175,18 @@
 .lp .item__m b{display:block;font-family:var(--mono);font-size:11.5px;color:var(--ink);letter-spacing:.1em}
 .lp .item__m .spec{margin-top:8px}
 .lp .item__t{font-size:16.5px;font-weight:500;color:var(--ink);margin-bottom:14px;letter-spacing:-.012em;line-height:1.5}
-.lp .cmp{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--panel);cursor:ew-resize;touch-action:none;user-select:none}
+/* 비포/애프터 — 클릭 전환 */
+.lp .cmp{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--panel);cursor:pointer;touch-action:manipulation;user-select:none}
 .lp .cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
-.lp .cmp .aft{clip-path:inset(0 0 0 var(--x,50%))}
-.lp .cmp .bar{position:absolute;top:0;bottom:0;left:var(--x,50%);width:1px;background:#fff;pointer-events:none;mix-blend-mode:difference}
-.lp .cmp .knob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;background:var(--paper);color:var(--ink);display:grid;place-items:center;font-family:var(--mono);font-size:11px;mix-blend-mode:normal}
+.lp .cmp .aft{clip-path:inset(0 0 0 100%);transition:clip-path .45s cubic-bezier(.4,0,.2,1)}
+.lp .cmp.show-after .aft{clip-path:inset(0 0 0 0%)}
+.lp .cmp .bar{display:none}
+.lp .cmp .knob{display:none}
 .lp .cmp .tag{position:absolute;bottom:0;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#F2F2EF;background:rgba(20,20,20,.62);padding:4px 9px;pointer-events:none}
 .lp .cmp .tag--b{left:0}.lp .cmp .tag--a{right:0}
 .lp .cmp__ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em}
+/* 클릭 안내 힌트 */
+.lp .cmp__hint{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:#fff;background:rgba(20,20,20,.5);padding:3px 10px;pointer-events:none;opacity:.8}
 .lp .empty{padding:48px 0;font-family:var(--mono);font-size:12px;color:var(--muted);border-bottom:1px solid var(--rule)}
 
 /* 받은 말 — 사진 있을 때만 2단 */
@@ -140,6 +199,8 @@
 .lp .qt p{font-size:16px;line-height:1.85;color:var(--ink);letter-spacing:-.008em}
 .lp .qt p::before{content:"“"}.lp .qt p::after{content:"”"}
 .lp .qt .spec{margin-top:12px}
+.lp .qt__btn{margin-top:14px}
+.lp .qt__btn .lk{font-size:13px}
 
 /* 가격 — 사진 있을 때만 2단 */
 .lp .pl__i{padding:30px 0;border-top:1px solid var(--rule)}
@@ -207,10 +268,57 @@
 .lp .dock .go:hover{opacity:.84}
 .lp .dock__i{color:var(--ink)}
 .lp .dock__i:hover{background:var(--panel)}
+
+/* ---------- 스크롤 리빌 — 은은하게 ---------- */
+.lp .rv{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1)}
+.lp .rv.is-in{opacity:1;transform:none}
+/* 첫 화면 안에 있는 요소는 바로 보이게 */
+.lp .head .rv{opacity:1;transform:none}
+/* 개별 항목은 아주 살짝만 */
+.lp .num li.rv,
+.lp .cre li.rv,
+.lp .qt.rv,
+.lp .pl__i.rv,
+.lp .stp li.rv,
+.lp .qa__i.rv{
+  transform:translateY(18px);
+  transition-duration:.55s;
+}
+.lp .num li.rv:nth-child(2),
+.lp .cre li.rv:nth-child(2),
+.lp .qt.rv:nth-child(2),
+.lp .pl__i.rv:nth-child(2),
+.lp .stp li.rv:nth-child(2),
+.lp .qa__i.rv:nth-child(2){
+  transition-delay:.06s;
+}
+.lp .num li.rv:nth-child(3),
+.lp .cre li.rv:nth-child(3),
+.lp .qt.rv:nth-child(3),
+.lp .pl__i.rv:nth-child(3),
+.lp .stp li.rv:nth-child(3),
+.lp .qa__i.rv:nth-child(3){
+  transition-delay:.12s;
+}
+.lp .num li.rv:nth-child(4),
+.lp .cre li.rv:nth-child(4),
+.lp .qt.rv:nth-child(4),
+.lp .pl__i.rv:nth-child(4),
+.lp .stp li.rv:nth-child(4),
+.lp .qa__i.rv:nth-child(4){
+  transition-delay:.18s;
+}
+.lp .num li.rv:nth-child(5),
+.lp .cre li.rv:nth-child(5),
+.lp .qt.rv:nth-child(5),
+.lp .pl__i.rv:nth-child(5),
+.lp .stp li.rv:nth-child(5),
+.lp .qa__i.rv:nth-child(5){
+  transition-delay:.24s;
+}
 /* ---------- 좁은 폭 (태블릿 · 큰 휴대폰 가로) ---------- */
 @media (max-width:960px){
   .lp .wrap{padding:0 22px}
-  /* 왼쪽 라벨 칸을 없애고 글을 화면 폭 전체로 흘린다 */
   .lp .gr,.lp .item__grid{grid-template-columns:minmax(0,1fr);gap:0}
   .lp .lab{margin-bottom:12px}
   .lp .sec{padding:54px 0}
@@ -222,8 +330,8 @@
   .lp .end h2{font-size:26px;max-width:none}
   .lp .end .txt{max-width:none}
   .lp .pull{font-size:19px;max-width:22em}
-  .lp .plate{min-height:min(720px,84svh)}
-  .lp .plate>.wrap{padding-top:clamp(110px,20vh,220px);padding-bottom:44px}
+  .lp .plate{min-height:min(820px,95svh)}
+  .lp .plate>.wrap{padding-top:clamp(104px,13vh,160px);padding-bottom:clamp(76px,9vw,110px)}
   .lp .item__m{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
   .lp .item__m .spec{margin-top:0}
   .lp .top__r nav{display:none}
@@ -236,6 +344,7 @@
   .lp .stp li.has{grid-template-columns:40px minmax(0,1fr);gap:0 14px}
   .lp .stp li.has .stp__f{grid-column:2;margin-top:16px;max-width:300px}
   .lp .end__grid{grid-template-columns:minmax(0,1fr);gap:36px 0}
+  .lp .scroll-hint{bottom:14px}
 }
 /* ---------- 휴대폰 ---------- */
 @media (max-width:600px){
@@ -262,10 +371,15 @@
   .lp .pl__h{gap:4px 12px}
   .lp .pl__f{grid-template-columns:minmax(0,1fr);gap:0}
   .lp .cmp{aspect-ratio:4/3}
-  .lp .cmp .knob{width:30px;height:30px}
-  .lp .plate{min-height:min(640px,82svh)}
-  .lp .plate__sc{background:linear-gradient(180deg, transparent 0%, transparent 13%, var(--p3) 29%, var(--p7) 43%, var(--p9) 55%, var(--p10) 67%, var(--p10) 100%)}
-  .lp .plate>.wrap{padding-top:clamp(84px,17vh,170px);padding-bottom:38px}
+  .lp .plate{min-height:min(740px,95svh)}
+  /* 화면이 좁으면 글이 차지하는 비중이 커지므로 막을 조금 더 일찍 짙게 */
+  .lp .plate__sc{background:linear-gradient(180deg,
+    rgba(0,0,0,calc(var(--sc,.45) * .70)) 0%,
+    rgba(0,0,0,calc(var(--sc,.45) * .62)) 20%,
+    rgba(0,0,0,calc(var(--sc,.45) * 1.05)) 48%,
+    rgba(0,0,0,calc(var(--sc,.45) * 1.45)) 76%,
+    rgba(0,0,0,calc(var(--sc,.45) * 1.6)) 100%)}
+  .lp .plate>.wrap{padding-top:clamp(92px,12vh,140px);padding-bottom:72px}
   .lp .end__grid{gap:28px 0}
   .lp .info div{grid-template-columns:minmax(0,1fr);gap:3px;padding:11px 0}
   .lp .info dt{padding-top:0}
@@ -277,6 +391,9 @@
   .lp .fil{gap:8px 16px}
   .lp .qa__q{font-size:14.8px;padding:16px 0}
   .lp .qa__a p{font-size:14.5px}
+  .lp .cmp__hint{font-size:9px;padding:2px 8px}
+  .lp .scroll-hint{width:30px;height:30px;bottom:10px}
+  .lp .scroll-hint svg{width:14px;height:14px}
 }
 /* ---------- 위와 같은 규칙을, 이번엔 페이지가 놓인 폭 기준으로 ---------- */
 @container lp (max-width:960px){
@@ -292,8 +409,8 @@
   .lp .end h2{font-size:26px;max-width:none}
   .lp .end .txt{max-width:none}
   .lp .pull{font-size:19px;max-width:22em}
-  .lp .plate{min-height:min(720px,84svh)}
-  .lp .plate>.wrap{padding-top:clamp(110px,20vh,220px);padding-bottom:44px}
+  .lp .plate{min-height:min(820px,95svh)}
+  .lp .plate>.wrap{padding-top:clamp(104px,13vh,160px);padding-bottom:clamp(76px,9vw,110px)}
   .lp .item__m{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
   .lp .item__m .spec{margin-top:0}
   .lp .top__r nav{display:none}
@@ -306,6 +423,7 @@
   .lp .stp li.has{grid-template-columns:40px minmax(0,1fr);gap:0 14px}
   .lp .stp li.has .stp__f{grid-column:2;margin-top:16px;max-width:300px}
   .lp .end__grid{grid-template-columns:minmax(0,1fr);gap:36px 0}
+  .lp .scroll-hint{bottom:14px}
 }
 
 @container lp (max-width:600px){
@@ -332,10 +450,15 @@
   .lp .pl__h{gap:4px 12px}
   .lp .pl__f{grid-template-columns:minmax(0,1fr);gap:0}
   .lp .cmp{aspect-ratio:4/3}
-  .lp .cmp .knob{width:30px;height:30px}
-  .lp .plate{min-height:min(640px,82svh)}
-  .lp .plate__sc{background:linear-gradient(180deg, transparent 0%, transparent 13%, var(--p3) 29%, var(--p7) 43%, var(--p9) 55%, var(--p10) 67%, var(--p10) 100%)}
-  .lp .plate>.wrap{padding-top:clamp(84px,17vh,170px);padding-bottom:38px}
+  .lp .plate{min-height:min(740px,95svh)}
+  /* 화면이 좁으면 글이 차지하는 비중이 커지므로 막을 조금 더 일찍 짙게 */
+  .lp .plate__sc{background:linear-gradient(180deg,
+    rgba(0,0,0,calc(var(--sc,.45) * .70)) 0%,
+    rgba(0,0,0,calc(var(--sc,.45) * .62)) 20%,
+    rgba(0,0,0,calc(var(--sc,.45) * 1.05)) 48%,
+    rgba(0,0,0,calc(var(--sc,.45) * 1.45)) 76%,
+    rgba(0,0,0,calc(var(--sc,.45) * 1.6)) 100%)}
+  .lp .plate>.wrap{padding-top:clamp(92px,12vh,140px);padding-bottom:72px}
   .lp .end__grid{gap:28px 0}
   .lp .info div{grid-template-columns:minmax(0,1fr);gap:3px;padding:11px 0}
   .lp .info dt{padding-top:0}
@@ -347,8 +470,15 @@
   .lp .fil{gap:8px 16px}
   .lp .qa__q{font-size:14.8px;padding:16px 0}
   .lp .qa__a p{font-size:14.5px}
+  .lp .cmp__hint{font-size:9px;padding:2px 8px}
+  .lp .scroll-hint{width:30px;height:30px;bottom:10px}
+  .lp .scroll-hint svg{width:14px;height:14px}
 }
-@media(prefers-reduced-motion:reduce){.lp *{transition:none!important;animation:none!important}}
+@media(prefers-reduced-motion:reduce){
+  .lp *{transition:none!important;animation:none!important}
+  .lp .rv{opacity:1!important;transform:none!important}
+  .lp .scroll-hint svg{animation:none!important}
+}
 </style>
 
 <style>
@@ -432,7 +562,6 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
 .modal__in ol b{color:#fff}
 .modal__in code{background:#111;padding:2px 6px;font-family:"IBM Plex Mono",monospace;font-size:11.5px}
 .modal__in a{color:#CFCAC1}
-/* 빌더 자체의 모바일 대응 — 탭 전환 */
 .mtabs{display:none;position:sticky;top:0;z-index:20;background:#111;border-bottom:1px solid #262523}
 .mtabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:#8C877E;font:inherit;font-size:12px;padding:12px 0;cursor:pointer}
 .mtabs button[aria-pressed=true]{color:#E4E2DD;border-bottom-color:#E4E2DD}
@@ -457,7 +586,7 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
 <div id="app">
   <aside class="ed">
     <div class="ed__top">
-      <div class="ed__title">브로우 아카이브 빌더 <span>V4</span></div>
+      <div class="ed__title">브로우 아카이브 빌더 <span>V5.4</span></div>
       <div class="ed__sub">챕터는 끌어서 순서를 바꾸고, 스위치로 껐다 켤 수 있습니다. 제목도 원하는 말로 바꾸세요.</div>
       <div class="ed__acts">
         <button class="b b--go" id="btn-export">페이지 내려받기</button>
@@ -482,6 +611,7 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
 <div class="toast" id="toast"></div>
 <div class="modal" id="modal"><div class="modal__in" id="modal-in"></div></div>
 <input type="file" id="file-img" accept="image/*" hidden>
+<input type="file" id="file-video" accept="video/*" hidden>
 <input type="file" id="file-json" accept="application/json,.json" hidden>
 
 <script id="page-js" type="text/plain">
@@ -502,22 +632,19 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
     });
   });
 
+  // 비포/애프터 클릭 전환
   root.querySelectorAll('.cmp').forEach(function(st){
-    var on = false;
-    function put(cx){
-      var r = st.getBoundingClientRect();
-      var p = Math.max(2, Math.min(98, ((cx - r.left) / r.width) * 100));
-      st.style.setProperty('--x', p + '%');
-      st.setAttribute('aria-valuenow', Math.round(p));
-    }
-    st.addEventListener('pointerdown', function(e){ on=true; st.setPointerCapture(e.pointerId); put(e.clientX); });
-    st.addEventListener('pointermove', function(e){ if(on){ e.preventDefault(); put(e.clientX); } });
-    st.addEventListener('pointerup', function(){ on=false; });
-    st.addEventListener('pointercancel', function(){ on=false; });
+    st.setAttribute('tabindex','0');
+    st.setAttribute('role','button');
+    st.setAttribute('aria-label','비포 애프터 전환');
+    st.addEventListener('click', function(){
+      st.classList.toggle('show-after');
+    });
     st.addEventListener('keydown', function(e){
-      var c = parseFloat(st.style.getPropertyValue('--x')) || 50;
-      if(e.key==='ArrowLeft'){ st.style.setProperty('--x', Math.max(2,c-5)+'%'); e.preventDefault(); }
-      if(e.key==='ArrowRight'){ st.style.setProperty('--x', Math.min(98,c+5)+'%'); e.preventDefault(); }
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault();
+        st.classList.toggle('show-after');
+      }
     });
   });
 
@@ -530,6 +657,22 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
       a.style.maxHeight = o ? '0px' : (a.scrollHeight + 'px');
     });
   });
+
+  // 스크롤 리빌 — 은은하게
+  var rv = root.querySelectorAll('.rv');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          en.target.classList.add('is-in');
+          io.unobserve(en.target);
+        }
+      });
+    }, {threshold:.12, rootMargin:'0px 0px -6% 0px'});
+    rv.forEach(function(el){ io.observe(el); });
+  } else {
+    rv.forEach(function(el){ el.classList.add('is-in'); });
+  }
 })();
 </script>
 
@@ -578,7 +721,11 @@ var DEFAULT = {
     spec:'반영구 눈썹 · 1:1 예약제 · 결 시술 중심 · 서울 ○○',
     txt:'얼굴형을 먼저 읽고 결의 방향을 설계합니다. 색소 농도를 낮춰 얕게 올리기 때문에 시간이 지나도 붉거나 푸르게 돌지 않고, 언제든 고칠 여지가 남습니다.',
     en:'Soft, correctable brow work. Low-pigment, shallow application.',
-    bg:''
+    bg:'',
+    video:'',
+    videoPoster:'',
+    scrim:0.45,
+    fade:0.5
   },
   sections:[
     {type:'pain', on:true, label:'망설임',
@@ -595,7 +742,8 @@ var DEFAULT = {
     {type:'artist', on:true, label:'시술자',
      name:'아티스트 이름', spec:'원장 · 반영구화장사 · 2017–',
      txt:'색소 화학과 피부 구조를 기준으로 시술합니다. 유행하는 모양을 따라가기보다 5년 뒤에도 어색하지 않게 남을 결을 만드는 데 집중합니다. 전문가 교육 과정을 함께 운영하고, 매년 국내외 대회에 참가합니다.',
-     en:'', bg:'',
+     en:'', bg:'', video:'', videoPoster:'',
+     scrim:0.55, fade:0.5,
      creds:[
        {k:'수상', v:'국제 반영구 대회 눈썹 부문 입상'},
        {k:'자격', v:'반영구화장사 · 위생교육 이수'},
@@ -604,7 +752,7 @@ var DEFAULT = {
      ]},
 
     {type:'arch', on:true, label:'작업 기록',
-     title:'작업 기록', txt:'보정 없이 같은 조명, 같은 각도에서 촬영했습니다. 모두 게재 동의를 받은 사진입니다. 가운데 선을 좌우로 밀어 확인하세요.',
+     title:'작업 기록', txt:'보정 없이 같은 조명, 같은 각도에서 촬영했습니다. 모두 게재 동의를 받은 사진입니다. 사진을 클릭하면 시술 전후가 전환됩니다.',
      note:'결과는 피부 타입과 잔여 색소 상태에 따라 개인차가 있습니다.',
      tabs:[
        {name:'자연 눈썹', items:[
@@ -622,9 +770,9 @@ var DEFAULT = {
     {type:'rev', on:true, label:'받은 말',
      title:'받은 말들', txt:'예약 페이지와 인스타그램에 남겨주신 문장을 그대로 옮겼습니다.',
      items:[
-       {t:'진하게 하지 말아달라고 했는데 정말 딱 그만큼만 해주셨어요. 회사에서는 아무도 눈치채지 못했는데 아침 시간은 확실히 줄었습니다.', spec:'김○○ · 자연 눈썹 · 2024.11', img:''},
-       {t:'다른 곳에서 한 게 붉게 변해서 오래 고민했어요. 왜 그렇게 변했는지 먼저 설명해주신 게 오히려 신뢰가 갔습니다.', spec:'이○○ · 수정·커버 · 2024.09', img:''},
-       {t:'디자인 그리는 데만 삼십 분을 쓰셨어요. 마음에 들 때까지 계속 고쳐주셔서 시술에 들어갈 땐 걱정이 없었습니다.', spec:'박○○ · 자연 눈썹 · 2024.08', img:''}
+       {t:'진하게 하지 말아달라고 했는데 정말 딱 그만큼만 해주셨어요. 회사에서는 아무도 눈치채지 못했는데 아침 시간은 확실히 줄었습니다.', spec:'김○○ · 자연 눈썹 · 2024.11', img:'', linkOn:false, linkText:'보러가기', linkUrl:''},
+       {t:'다른 곳에서 한 게 붉게 변해서 오래 고민했어요. 왜 그렇게 변했는지 먼저 설명해주신 게 오히려 신뢰가 갔습니다.', spec:'이○○ · 수정·커버 · 2024.09', img:'', linkOn:false, linkText:'보러가기', linkUrl:''},
+       {t:'디자인 그리는 데만 삼십 분을 쓰셨어요. 마음에 들 때까지 계속 고쳐주셔서 시술에 들어갈 땐 걱정이 없었습니다.', spec:'박○○ · 자연 눈썹 · 2024.08', img:'', linkOn:false, linkText:'보러가기', linkUrl:''}
      ]},
 
     {type:'price', on:true, label:'가격',
@@ -678,32 +826,41 @@ function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.cl
 function url(u){ u=String(u||'').trim(); if(!u) return '#';
   if(/^(https?:|tel:|mailto:|#|\/)/i.test(u)) return esc(u); return esc('https://'+u); }
 function pad(i){ return (i<9?'0':'')+(i+1); }
-/* 사진 아래를 종이색으로 받아 글이 놓이는 자리를 만든다 */
-function plateVars(paper){
-  return '--p3:'+rgba(paper,.30)+';--p7:'+rgba(paper,.72)+';--p9:'+rgba(paper,.93)+';--p10:'+paper+';';
-}
 function cssurl(u){ return "url('"+String(u||'').replace(/['"\\\n\r()]/g,'')+"')"; }
-function rgba(hex,a){ var m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex||'');
-  if(!m) return 'rgba(255,255,255,'+a+')';
-  return 'rgba('+parseInt(m[1],16)+','+parseInt(m[2],16)+','+parseInt(m[3],16)+','+a+')'; }
+function rgba(hex,a){ var c=hex2rgb(hex); return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')'; }
+function num(v,d){ var n=parseFloat(v); if(isNaN(n)) n=d; return Math.max(0,Math.min(1,n)); }
+/* 판 한 장의 설정. --sc 는 어두운 막의 세기, --ft/--fb 는 위아래 종이색 번짐 폭 */
+function plateVars(o,paper){
+  var sc=num(o.scrim,0.45), fd=num(o.fade,0.5);
+  return '--sc:'+sc+';--pg:'+paper+';--pg0:'+rgba(paper,0)+
+    ';--ft:'+Math.round(30+fd*80)+'px;--fb:'+Math.round(24+fd*56)+'px;';
+}
+/* 사진·영상 중 있는 것 하나를 배경 층으로 만든다 */
+function plateLayer(o){
+  if(o.video){
+    return '<video class="plate__video" autoplay muted loop playsinline'+
+      (o.videoPoster?' poster="'+esc(o.videoPoster)+'"':'')+'><source src="'+esc(o.video)+'" type="video/mp4"></video>';
+  }
+  if(o.bg){ return '<div class="plate__bg" style="background-image:'+cssurl(o.bg)+'"></div>'; }
+  return '';
+}
 
-/* ---------- 섹션 렌더러 ---------- */
 var R = {};
 
 R.pain = function(s){
   return '<ol class="num">'+ s.items.map(function(x,i){
-      return '<li><b>'+pad(i)+'</b><strong>'+esc(x.t)+'</strong><p>'+nl(x.d)+'</p></li>'; }).join('') +'</ol>'+
-    (s.pull ? '<p class="pull">'+nl(s.pull)+'</p>' : '')+
-    (s.pullImg ? '<figure class="pullfig"><img src="'+esc(s.pullImg)+'" alt="" loading="lazy">'+
+      return '<li class="rv"><b>'+pad(i)+'</b><strong>'+esc(x.t)+'</strong><p>'+nl(x.d)+'</p></li>'; }).join('') +'</ol>'+
+    (s.pull ? '<p class="pull rv">'+nl(s.pull)+'</p>' : '')+
+    (s.pullImg ? '<figure class="pullfig rv"><img src="'+esc(s.pullImg)+'" alt="" loading="lazy">'+
       (s.pullCap?'<figcaption class="spec cap">'+esc(s.pullCap)+'</figcaption>':'')+'</figure>' : '');
 };
 
-R.artist = function(s){
-  return '<div class="spec" style="margin-top:8px">'+esc(s.spec)+'</div>'+
-    '<p class="txt" style="margin-top:20px">'+nl(s.txt)+'</p>'+
-    (s.en?'<p class="en">'+nl(s.en)+'</p>':'')+
+R.artist = function(s,c){
+  return '<div class="spec rv" style="margin-top:8px">'+esc(s.spec)+'</div>'+
+    '<p class="txt rv" style="margin-top:20px">'+nl(s.txt)+'</p>'+
+    (s.en?'<p class="en rv">'+nl(s.en)+'</p>':'')+
     '<ul class="cre">'+ s.creds.map(function(x){
-      return '<li><i>'+esc(x.k)+'</i><span>'+esc(x.v)+'</span></li>'; }).join('') +'</ul>';
+      return '<li class="rv"><i>'+esc(x.k)+'</i><span>'+esc(x.v)+'</span></li>'; }).join('') +'</ul>';
 };
 
 R.arch = function(s){
@@ -717,11 +874,12 @@ R.arch = function(s){
         ? (it.b?'<img src="'+esc(it.b)+'" alt="시술 전">':'<div class="cmp__ph">BEFORE 없음</div>')+
           (it.a?'<img class="aft" src="'+esc(it.a)+'" alt="시술 후">':'')
         : '<div class="cmp__ph">BEFORE / AFTER</div>';
-      items.push('<article class="item" data-f="t'+i+'"'+(i===0?'':' hidden')+'><div class="item__grid">'+
+      var hint = (it.b&&it.a)?'<span class="cmp__hint">클릭하여 전환</span>':'';
+      items.push('<article class="item rv" data-f="t'+i+'"'+(i===0?'':' hidden')+'><div class="item__grid">'+
         '<div class="item__m"><b>'+pad(j)+'</b><div class="spec">'+esc(tb.name)+'</div></div><div>'+
         '<div class="item__t">'+esc(it.t)+'</div>'+
-        '<div class="cmp" style="--x:50%" tabindex="0" role="slider" aria-label="시술 전후 비교" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">'+
-          stage+'<div class="bar"><span class="knob">↔</span></div>'+
+        '<div class="cmp" tabindex="0" role="button" aria-label="시술 전후 전환">'+
+          stage+hint+
           '<span class="tag tag--b">BEFORE</span><span class="tag tag--a">AFTER</span></div>'+
         (it.spec?'<div class="spec cap">'+esc(it.spec)+'</div>':'')+
       '</div></div></article>');
@@ -729,13 +887,15 @@ R.arch = function(s){
   });
   return '<div class="fil">'+fil+'</div><div class="arch">'+items.join('')+
     '<div class="empty" hidden>기록이 없습니다.</div></div>'+
-    (s.note?'<p class="spec" style="margin-top:20px">'+esc(s.note)+'</p>':'');
+    (s.note?'<p class="spec rv" style="margin-top:20px">'+esc(s.note)+'</p>':'');
 };
 
 R.rev = function(s){
   return '<div class="qts">'+ s.items.map(function(x){
-    var body = '<div><p>'+nl(x.t)+'</p>'+(x.spec?'<div class="spec">'+esc(x.spec)+'</div>':'')+'</div>';
-    return '<blockquote class="qt'+(x.img?' qt--img':'')+'"><div class="qt__in">'+
+    var body = '<div><p>'+nl(x.t)+'</p>'+(x.spec?'<div class="spec">'+esc(x.spec)+'</div>':'')+
+      (x.linkOn && x.linkUrl ? '<div class="qt__btn"><a class="lk" href="'+url(x.linkUrl)+'" target="_blank" rel="noopener">'+esc(x.linkText||'보러가기')+' ↗</a></div>' : '')+
+      '</div>';
+    return '<blockquote class="qt rv'+(x.img?' qt--img':'')+'"><div class="qt__in">'+
       (x.img?'<figure class="qt__f"><img src="'+esc(x.img)+'" alt="" loading="lazy"></figure>':'')+
       body+'</div></blockquote>'; }).join('') +'</div>';
 };
@@ -750,32 +910,30 @@ R.price = function(s,c){
       '<a class="lk" href="'+book+'" target="_blank" rel="noopener">이 구성으로 상담받기</a></div>';
     var right = p.img ? '<figure class="pl__f2"><img src="'+esc(p.img)+'" alt="" loading="lazy">'+
       (p.cap?'<figcaption class="spec">'+esc(p.cap)+'</figcaption>':'')+'</figure>' : '';
-    return '<div class="pl__i'+(p.img?' pl__i--img':'')+'"><div class="pl__in">'+left+right+'</div></div>'; }).join('') +'</div>'+
-    (s.notes.length?'<div class="notes">'+ s.notes.map(function(n){ return '<span class="spec">'+esc(n)+'</span>'; }).join('') +'</div>':'');
+    return '<div class="pl__i rv'+(p.img?' pl__i--img':'')+'"><div class="pl__in">'+left+right+'</div></div>'; }).join('') +'</div>'+
+    (s.notes.length?'<div class="notes rv">'+ s.notes.map(function(n){ return '<span class="spec">'+esc(n)+'</span>'; }).join('') +'</div>':'');
 };
 
 R.steps = function(s){
   return '<ol class="stp">'+ s.items.map(function(x,i){
     var f = x.img ? '<figure class="stp__f"><img src="'+esc(x.img)+'" alt="" loading="lazy">'+
       (x.cap?'<figcaption class="spec">'+esc(x.cap)+'</figcaption>':'')+'</figure>' : '';
-    return '<li'+(x.img?' class="has"':'')+'><i>'+pad(i)+'</i>'+
+    return '<li class="rv'+(x.img?' has':'')+'"><i>'+pad(i)+'</i>'+
       '<div><b>'+esc(x.t)+'</b><p>'+nl(x.d)+'</p></div>'+f+'</li>'; }).join('') +'</ol>';
 };
 
 R.faq = function(s){
   return '<div class="qa">'+ s.items.map(function(x){
-    return '<div class="qa__i"><button class="qa__q" aria-expanded="false">'+esc(x.q)+'<em>+</em></button>'+
+    return '<div class="qa__i rv"><button class="qa__q" aria-expanded="false">'+esc(x.q)+'<em>+</em></button>'+
       '<div class="qa__a"><p>'+nl(x.a)+'</p></div></div>'; }).join('') +'</div>';
 };
 
-/* ---------- 페이지 ---------- */
 function renderPage(c){
   var t = derive(c.tone);
   var v = toneVars(c);
   var kakao = url(c.contact.kakao);
   var live = c.sections.filter(function(s){ return s.on !== false; });
   var h=[];
-  /* 바깥은 색, 안쪽은 폭 기준. 고정 바는 폭 기준 밖에 둔다 */
   h.push('<div style="'+v+'"><div class="lp__c">');
 
   var nav = live.filter(function(s){ return ['arch','price','faq'].indexOf(s.type)>=0; })
@@ -787,40 +945,52 @@ function renderPage(c){
       '<a class="go go--sm" href="'+kakao+'" target="_blank" rel="noopener">사진 상담</a></div>'+
   '</div></header>');
 
-  /* 표제 — 사진은 위, 글은 아래. 스크롤을 전제한 첫 화면 */
   var headBody = '<h1>'+nl(c.head.title)+'</h1>'+
     (c.head.spec?'<div class="head__sp spec">'+esc(c.head.spec)+'</div>':'')+
     '<p class="txt">'+nl(c.head.txt)+'</p>'+
-    (c.head.en?'<p class="en">'+nl(c.head.en)+'</p>':'')+
-    '<div class="acts"><a class="go" href="'+kakao+'" target="_blank" rel="noopener">'+esc(c.end.cta||'무료로 상담받기')+'</a></div>';
-  h.push(c.head.bg
-    ? '<section class="head plate" style="'+plateVars(t.paper)+'">'+
-        '<div class="plate__bg" style="background-image:'+cssurl(c.head.bg)+'"></div>'+
-        '<div class="plate__sc"></div>'+
-        '<div class="wrap">'+headBody+'</div></section>'
-    : '<section class="head"><div class="wrap">'+headBody+'</div></section>');
+    (c.head.en?'<p class="en">'+nl(c.head.en)+'</p>':'');
+
+  var headMedia = plateLayer(c.head);
+
+  var firstSec = live.length ? live[0].type : 'pain';
+  var scrollHint = '<a href="#s-'+firstSec+'" class="scroll-hint" aria-label="아래로 스크롤">'+
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+
+    '<path d="M5 9l7 7 7-7"/></svg></a>';
+
+  h.push(headMedia
+    ? '<section class="head plate" style="'+plateVars(c.head,t.paper)+'">'+
+        headMedia+
+        '<div class="plate__sc"></div><div class="plate__edge"></div>'+
+        '<div class="wrap">'+headBody+'</div>'+
+        scrollHint+
+        '</section>'
+    : '<section class="head"><div class="wrap">'+headBody+'</div>'+scrollHint+'</section>');
 
   live.forEach(function(s){
     var body = R[s.type] ? R[s.type](s,c) : '';
     var title = s.title || s.name || '';
-    var lead = (s.txt && s.type!=='artist') ? '<p class="txt" style="margin-top:16px">'+nl(s.txt)+'</p>' : '';
-    var inner = '<div class="gr__l"><span class="lab">'+esc(s.label)+'</span></div><div>'+
-      (title?'<h2 class="t">'+nl(title)+'</h2>':'')+lead+body+'</div>';
-    h.push(s.bg
-      ? '<section class="sec plate" id="s-'+s.type+'" style="'+plateVars(t.paper)+'">'+
-          '<div class="plate__bg" style="background-image:'+cssurl(s.bg)+'"></div>'+
-          '<div class="plate__sc"></div>'+
-          '<div class="wrap gr">'+inner+'</div></section>'
-      : '<section class="sec" id="s-'+s.type+'"><div class="wrap gr">'+inner+'</div></section>');
+    var lead = (s.txt && s.type!=='artist') ? '<p class="txt rv" style="margin-top:16px">'+nl(s.txt)+'</p>' : '';
+    var inner = '<div class="gr__l"><span class="lab rv">'+esc(s.label)+'</span></div><div>'+
+      (title?'<h2 class="t rv">'+nl(title)+'</h2>':'')+lead+body+'</div>';
+
+    var media = plateLayer(s);
+
+    if(media){
+      h.push('<section class="sec plate" id="s-'+s.type+'" style="'+plateVars(s,t.paper)+'">'+
+        media+'<div class="plate__sc"></div><div class="plate__edge"></div>'+
+        '<div class="wrap gr">'+inner+'</div></section>');
+    } else {
+      h.push('<section class="sec" id="s-'+s.type+'"><div class="wrap gr">'+inner+'</div></section>');
+    }
   });
 
   var tel = esc(String(c.contact.phone||'').replace(/[^0-9+]/g,''));
   h.push('<section class="end"><div class="wrap end__grid">'+
-    '<div><h2>'+nl(c.end.title)+'</h2><p class="txt">'+nl(c.end.txt)+'</p></div>'+
-    '<div><div class="end__act">'+
+    '<div><h2 class="rv">'+nl(c.end.title)+'</h2><p class="txt rv">'+nl(c.end.txt)+'</p></div>'+
+    '<div><div class="end__act rv">'+
       '<a class="go" href="'+kakao+'" target="_blank" rel="noopener">'+esc(c.end.cta||'무료로 상담받기')+'</a>'+
       ((c.end.telOn!==false && c.contact.phone)?'<a class="lk lk--q" href="tel:'+tel+'">전화 문의 '+esc(c.contact.phone)+'</a>':'')+
-    '</div><dl class="info">'+
+    '</div><dl class="info rv">'+
       (c.contact.hours?'<div><dt>영업</dt><dd>'+nl(c.contact.hours)+'</dd></div>':'')+
       (c.contact.addr?'<div><dt>주소</dt><dd>'+nl(c.contact.addr)+'</dd></div>':'')+
       (c.contact.place?'<div><dt>지도</dt><dd><a href="'+url(c.contact.place)+'" target="_blank" rel="noopener">오시는 길 ↗</a></dd></div>':'')+
@@ -829,7 +999,7 @@ function renderPage(c){
   '</div></section>');
 
   h.push('<footer class="foot"><div class="wrap foot__in">'+
-    '<span class="spec">© '+new Date().getFullYear()+' '+esc(c.brand.name)+'</span></div></footer>');
+    '<span class="spec rv">© '+new Date().getFullYear()+' '+esc(c.brand.name)+'</span></div></footer>');
 
   h.push('</div>');
 
@@ -862,7 +1032,7 @@ var KIND = {
   cred:function(){return {k:'',v:''};},
   tab:function(){return {name:'새 시술', items:[]};},
   item:function(){return {t:'',spec:'',b:'',a:''};},
-  rev:function(){return {t:'',spec:'',img:''};},
+  rev:function(){return {t:'',spec:'',img:'',linkOn:false,linkText:'보러가기',linkUrl:''};},
   plan:function(){return {n:'',spec:'',p:'',was:'',best:false,img:'',cap:'',f:['']};},
   step:function(){return {t:'',d:'',img:'',cap:''};},
   faq:function(){return {q:'',a:''};}
@@ -876,9 +1046,14 @@ function IMG(p,l,ratio,note){ var v=get(p);
   '<div class="pic__act"><span>'+l+(ratio?'<em>'+ratio+'</em>':'')+(note?'<em>'+note+'</em>':'')+'</span>'+
   '<button class="b b--x" data-img="'+p+'">사진 올리기</button> '+
   (v?'<button class="b b--x" data-imgdel="'+p+'">지우기</button>':'')+'</div></div>'; }
-function RNG(p,l){ var v=parseFloat(get(p)); if(isNaN(v)) v=.34;
+function VIDEO(p,l,note){ var v=get(p);
+  return '<div class="pic"><div class="pic__box" style="'+(v?'background:#000;color:#E4E2DD;display:grid;place-items:center;font-size:8px':'')+'">'+(v?'MP4':'—')+'</div>'+
+  '<div class="pic__act"><span>'+l+(note?'<em>'+note+'</em>':'')+'</span>'+
+  '<button class="b b--x" data-video="'+p+'">영상 올리기</button> '+
+  (v?'<button class="b b--x" data-videodel="'+p+'">지우기</button>':'')+'</div></div>'; }
+function RNG(p,l,def){ var v=parseFloat(get(p)); if(isNaN(v)) v=(def==null?0.45:def);
   return '<label class="f"><span>'+l+'</span><span class="rng">'+
-    '<input type="range" min="0" max="1" step="0.02" data-p="'+p+'" value="'+v+'">'+
+    '<input type="range" min="0" max="1" step="0.05" data-p="'+p+'" value="'+v+'">'+
     '<output>'+Math.round(v*100)+'%</output></span></label>'; }
 function ADD(p,k,l){ return '<button class="b b--full" data-add="'+p+'" data-kind="'+k+'">+ '+l+'</button>'; }
 function DEL(p,i){ return '<button class="b b--x" data-del="'+p+'" data-i="'+i+'">삭제</button>'; }
@@ -895,14 +1070,18 @@ ED.pain = function(s,b){
     ADD(b+'.items','pain','추가')+
     A(b+'.pull','전환 문장',2)+
     IMG(b+'.pullImg','전환 문장 아래 사진','16:9','가로 1600px 이상')+T(b+'.pullCap','사진 설명')+
-    HINT('"색소 침착 우려"가 아니라 "너무 진해질까 봐". 고객이 실제로 쓰는 말이어야 자기 이야기로 읽힙니다. 전환 문장 아래 사진은 디자인을 그리는 장면처럼 그 말을 증명하는 컷이 좋습니다.');
+    HINT('"색소 침착 우려"가 아니라 "너무 진해질까 봐". 고객이 실제로 쓰는 말이어야 자기 이야기로 읽힙니다.');
 };
 ED.artist = function(s,b){
   return T(b+'.name','이름 (제목 자리)')+T(b+'.spec','사양줄')+A(b+'.txt','본문',5)+A(b+'.en','영문 (선택)',2)+
     IMG(b+'.bg','시술자 배경 사진','4:5','세로 · 인물은 위쪽에')+
+    VIDEO(b+'.video','시술자 배경 영상','MP4 · 10MB 이하 권장')+
+    T(b+'.videoPoster','영상 포스터 (선택)')+
+    RNG(b+'.scrim','어두운 막 세기',0.55)+
+    RNG(b+'.fade','가장자리 번짐',0.5)+
     s.creds.map(function(x,i){ return CARD(pad(i),b+'.creds',i,'<div class="row2">'+T(b+'.creds.'+i+'.k','구분')+T(b+'.creds.'+i+'.v','내용')+'</div>'); }).join('')+
     ADD(b+'.creds','cred','경력 추가')+
-    HINT('고객은 업체가 아니라 사람과 예약합니다. 얼굴이나 손이 보이는 사진 한 장이 로고보다 강합니다. 표제와 같은 방식으로 사진이 위, 글이 아래에 놓입니다. 인물은 사진 위쪽에 두세요.');
+    HINT('사진이나 영상을 넣으면 이 구간에 어두운 막이 깔리고 글자가 흰색으로 뒤집힙니다. 글이 길어져 위로 올라가도 가려지지 않습니다. 밝은 사진일수록 막 세기를 올리세요. 경력이 많으면 60% 이상이 안전합니다. 가장자리 번짐은 위아래 끝을 종이색으로 흐려 앞뒤 구간과 이어 붙입니다.');
 };
 ED.arch = function(s,b){
   return T(b+'.title','제목')+A(b+'.txt','설명',3)+T(b+'.note','주의 문구')+
@@ -915,15 +1094,18 @@ ED.arch = function(s,b){
         IMG(b+'.tabs.'+i+'.items.'+j+'.a','시술 후','3:2','전·후 동일 비율')+'</div>'; }).join('')+
       ADD(b+'.tabs.'+i+'.items','item','기록 추가')+'</div>'; }).join('')+
     ADD(b+'.tabs','tab','시술 추가')+
-    HINT('시술별 필터는 이 챕터 안에만 두세요. 맨 위로 올리면 눈썹 보러 온 사람에게 불필요한 선택을 시키는 셈이라 이탈이 늘어납니다. 기본값은 첫 번째 시술이고 "전체"는 맨 끝에 놓입니다.');
+    HINT('이제 드래그하지 않고 사진을 클릭하면 BEFORE ↔ AFTER가 전환됩니다.');
 };
 ED.rev = function(s,b){
   return T(b+'.title','제목')+A(b+'.txt','설명',2)+
     s.items.map(function(x,i){ return CARD(pad(i),b+'.items',i,
       A(b+'.items.'+i+'.t','문장',3)+T(b+'.items.'+i+'.spec','서명줄 (이름 · 시술 · 날짜)')+
-      IMG(b+'.items.'+i+'.img','후기 사진','4:5','세로 · 없으면 글만 전체 폭')); }).join('')+
+      IMG(b+'.items.'+i+'.img','후기 사진','4:5','세로 · 없으면 글만 전체 폭')+
+      '<label class="f" style="margin-top:8px"><span><input type="checkbox" data-flag="'+b+'.items.'+i+'.linkOn"'+(x.linkOn?' checked':'')+'> 보러가기 버튼 표시</span></label>'+
+      '<div class="row2">'+T(b+'.items.'+i+'.linkText','버튼 문구')+T(b+'.items.'+i+'.linkUrl','연결 링크')+'</div>'
+      ); }).join('')+
     ADD(b+'.items','rev','추가')+
-    HINT('사진을 넣으면 왼쪽에 세로 사진, 오른쪽에 글로 배치됩니다. 좁은 화면에서는 사진이 위, 글이 아래로 자동으로 풀립니다. 넣지 않으면 글이 그대로 한 단으로 흐릅니다.');
+    HINT('사진을 넣으면 왼쪽에 세로 사진, 오른쪽에 글로 배치됩니다.');
 };
 ED.price = function(s,b){
   return T(b+'.title','제목')+A(b+'.txt','설명',2)+
@@ -939,7 +1121,7 @@ ED.price = function(s,b){
     '<label class="f" style="margin-top:8px"><span>하단 문구</span></label>'+
     s.notes.map(function(x,i){ return '<div class="row2" style="margin-bottom:6px"><input type="text" data-p="'+b+'.notes.'+i+'" value="'+esc(x)+'">'+DEL(b+'.notes',i)+'</div>'; }).join('')+
     ADD(b+'.notes','str','문구 추가')+
-    HINT('기법 사진을 넣으면 오른쪽에 붙습니다. 가운데를 추천으로 두고 양옆에 저가와 상담형을 배치하면 가운데가 기준점이 됩니다. 금액을 숨기면 문의는 늘지만 실제 예약은 줄어듭니다.');
+    HINT('기법 사진을 넣으면 오른쪽에 붙습니다.');
 };
 ED.steps = function(s,b){
   return T(b+'.title','제목')+A(b+'.txt','설명',2)+
@@ -947,13 +1129,13 @@ ED.steps = function(s,b){
       T(b+'.items.'+i+'.t','단계 이름')+A(b+'.items.'+i+'.d','설명',3)+
       IMG(b+'.items.'+i+'.img','단계 사진','4:3','선택')+T(b+'.items.'+i+'.cap','사진 설명')); }).join('')+
     ADD(b+'.items','step','단계 추가')+
-    HINT('사진이 있는 단계만 3단으로 벌어지고, 없는 단계는 글이 그대로 넓게 흐릅니다. 일부만 넣어도 어색하지 않습니다.');
+    HINT('사진이 있는 단계만 3단으로 벌어집니다.');
 };
 ED.faq = function(s,b){
   return T(b+'.title','제목')+
     s.items.map(function(x,i){ return CARD(pad(i),b+'.items',i, T(b+'.items.'+i+'.q','질문')+A(b+'.items.'+i+'.a','답',4)); }).join('')+
     ADD(b+'.items','faq','질문 추가')+
-    HINT('통증 · 유지 기간 · 기존 시술 커버 · 회복 기간. 이 넷은 반드시 넣으세요. 답을 못 찾으면 그대로 나갑니다.');
+    HINT('통증 · 유지 기간 · 기존 시술 커버 · 회복 기간. 이 넷은 반드시 넣으세요.');
 };
 
 function renderEditor(){
@@ -975,12 +1157,16 @@ function renderEditor(){
       '<label class="f"><span>글자</span><span class="clr"><input type="color" data-p="tone.ink" value="'+esc(cfg.tone.ink)+'">'+
         '<input type="text" data-p="tone.ink" value="'+esc(cfg.tone.ink)+'"></span></label>'+
     '</div>'+
-    HINT('이 둘만 정하면 본문, 흐린 글씨, 선, 사진 자리의 바탕색이 그 사이에서 자동으로 만들어집니다. 따로 맞출 필요가 없고 대비도 깨지지 않습니다. 배경을 어둡게 하고 글자를 밝게 하면 페이지 전체가 반전됩니다.'), op['tone']));
+    HINT('이 둘만 정하면 본문, 흐린 글씨, 선, 사진 자리의 바탕색이 그 사이에서 자동으로 만들어집니다. 사진이 깔린 구간은 이 톤과 무관하게 어두운 막 + 흰 글씨로 고정됩니다. 제목에는 Noto Serif KR이 적용되어 본문과 구분됩니다.'), op['tone']));
 
   h.push(FIX('head','표제',
     A('head.title','제목 (한 문장)',3)+T('head.spec','사양줄')+A('head.txt','본문',4)+A('head.en','영문 (선택)',2)+
     IMG('head.bg','표제 배경 사진','4:5','세로 · 인물은 위쪽에')+
-    HINT('사진이 화면 위쪽을 채우고 글은 아래에 놓입니다. 사진 아래쪽은 종이색으로 완전히 가라앉기 때문에 어떤 사진을 넣어도 글자는 읽힙니다. 첫 화면 끝에 글이 걸리므로 자연스럽게 아래로 넘기게 됩니다. 인물이나 초점은 사진 위쪽에 두세요. 아래쪽은 어차피 덮입니다.'), op['head']));
+    VIDEO('head.video','표제 배경 영상','MP4 · 10MB 이하 권장')+
+    T('head.videoPoster','영상 포스터 (선택)')+
+    RNG('head.scrim','어두운 막 세기',0.45)+
+    RNG('head.fade','가장자리 번짐',0.5)+
+    HINT('배경 사진과 영상 중 하나만 사용됩니다. 미디어를 넣으면 어두운 막이 깔리고 글자가 흰색으로 뒤집힙니다. 막은 위가 옅고 글이 놓이는 아래로 갈수록 짙어집니다. 사진이 밝거나 흰 옷·흰 벽이 많으면 세기를 55~70%까지 올리세요. 가장자리 번짐을 0으로 내리면 사진이 끝까지 꽉 차고, 올리면 위아래가 종이색으로 스며들어 앞뒤와 이어집니다. 미디어를 넣지 않으면 종이색 그대로 유지됩니다.'), op['head']));
 
   h.push('<div id="sec-list">');
   cfg.sections.forEach(function(s,i){
@@ -1013,7 +1199,7 @@ function renderEditor(){
     T('contact.kakao','카카오톡 채널 링크')+T('contact.insta','인스타그램')+T('contact.place','네이버 플레이스 · 지도 링크')+
     '<div class="row2">'+T('contact.phone','전화')+T('contact.hours','영업시간')+'</div>'+
     T('contact.addr','주소')+
-    HINT('고정 바는 화면 아래 양끝까지 닿는 띠로 스크롤 내내 따라옵니다. 켜둔 버튼만 들어가고, 주소를 비운 버튼은 자동으로 빠집니다. 세 개를 다 켜면 좁은 화면에서 글자가 줄어드니 두 개까지가 무난합니다. 카카오톡은 채워진 상태로 남아 어느 것이 주된 행동인지 드러납니다.'), op['end']));
+    HINT('고정 바는 화면 아래 양끝까지 닿는 띠로 스크롤 내내 따라옵니다.'), op['end']));
 
   document.getElementById('ed-body').innerHTML = h.join('');
   wireDrag();
@@ -1028,7 +1214,6 @@ function renderPreview(){
 }
 function refresh(both){ if(both) renderEditor(); renderPreview(); }
 
-/* 순서 변경 */
 function move(from,to){
   if(to<0||to>=cfg.sections.length) return;
   var m=cfg.sections.splice(from,1)[0]; cfg.sections.splice(to,0,m); refresh(true);
@@ -1096,7 +1281,7 @@ edBody.addEventListener('change', function(e){
   }
 });
 edBody.addEventListener('click', function(e){
-  var el=e.target.closest('[data-toggle],[data-add],[data-del],[data-img],[data-imgdel],[data-tone],[data-on],[data-mv]');
+  var el=e.target.closest('[data-toggle],[data-add],[data-del],[data-img],[data-imgdel],[data-video],[data-videodel],[data-tone],[data-on],[data-mv]');
   if(!el) return;
   if(el.hasAttribute('data-mv')){ var i=+el.getAttribute('data-i'); move(i, i+(+el.getAttribute('data-mv'))); return; }
   if(el.hasAttribute('data-on')){
@@ -1113,25 +1298,84 @@ edBody.addEventListener('click', function(e){
     if(a.length<=1){ toast('최소 하나는 남겨두세요'); return; }
     a.splice(+el.getAttribute('data-i'),1); refresh(true); return; }
   if(el.hasAttribute('data-imgdel')){ set(el.getAttribute('data-imgdel'),''); refresh(true); return; }
-  if(el.hasAttribute('data-img')){ pending=el.getAttribute('data-img'); fImg.value=''; fImg.click(); }
+  if(el.hasAttribute('data-videodel')){ set(el.getAttribute('data-videodel'),''); refresh(true); return; }
+  if(el.hasAttribute('data-img')){
+    pendingImgPath = el.getAttribute('data-img');
+    fImg.value='';
+    fImg.click();
+  }
+  if(el.hasAttribute('data-video')){
+    pendingVideoPath = el.getAttribute('data-video');
+    fVideo.value='';
+    fVideo.click();
+  }
 });
 
-var pending=null, fImg=document.getElementById('file-img');
+var pendingImgPath = null;
+var fImg = document.getElementById('file-img');
 fImg.addEventListener('change', function(){
-  var f=this.files&&this.files[0]; if(!f||!pending) return;
-  var fr=new FileReader();
-  fr.onload=function(){
-    var im=new Image();
-    im.onload=function(){
-      var M=1400,w=im.width,ht=im.height;
-      if(Math.max(w,ht)>M){ var r=M/Math.max(w,ht); w=Math.round(w*r); ht=Math.round(ht*r); }
-      var cv=document.createElement('canvas'); cv.width=w; cv.height=ht;
-      var cx=cv.getContext('2d'); cx.drawImage(im,0,0,w,ht);
-      set(pending, cv.toDataURL('image/jpeg',0.82));
-      pending=null; refresh(true); toast('사진을 넣었습니다');
+  var f = this.files && this.files[0];
+  if(!f || !pendingImgPath) return;
+
+  var targetPath = pendingImgPath;
+  pendingImgPath = null;
+
+  var fr = new FileReader();
+  fr.onload = function(){
+    var im = new Image();
+    im.onload = function(){
+      try {
+        var M = 1600, w = im.width, h = im.height;
+        if(Math.max(w,h) > M){
+          var r = M / Math.max(w,h);
+          w = Math.round(w * r);
+          h = Math.round(h * r);
+        }
+        var cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        var cx = cv.getContext('2d');
+        cx.drawImage(im, 0, 0, w, h);
+        var dataUrl = cv.toDataURL('image/jpeg', 0.85);
+        set(targetPath, dataUrl);
+        refresh(true);
+        toast('사진을 적용했습니다');
+      } catch(err) {
+        toast('이미지 처리 중 오류가 발생했습니다');
+      }
     };
-    im.onerror=function(){ toast('이 이미지는 읽을 수 없습니다'); };
-    im.src=fr.result;
+    im.onerror = function(){
+      toast('이미지를 읽을 수 없습니다');
+    };
+    im.src = fr.result;
+  };
+  fr.onerror = function(){
+    toast('파일을 읽을 수 없습니다');
+  };
+  fr.readAsDataURL(f);
+});
+
+var pendingVideoPath = null;
+var fVideo = document.getElementById('file-video');
+fVideo.addEventListener('change', function(){
+  var f = this.files && this.files[0];
+  if(!f || !pendingVideoPath) return;
+
+  var targetPath = pendingVideoPath;
+  pendingVideoPath = null;
+
+  if(f.size > 15*1024*1024){
+    toast('영상은 15MB 이하로 올려주세요');
+    return;
+  }
+
+  var fr = new FileReader();
+  fr.onload = function(){
+    set(targetPath, fr.result);
+    refresh(true);
+    toast('영상을 적용했습니다');
+  };
+  fr.onerror = function(){
+    toast('파일을 읽을 수 없습니다');
   };
   fr.readAsDataURL(f);
 });
@@ -1150,7 +1394,7 @@ function buildDoc(c){
   '<meta property="og:title" content="'+esc(title)+'">\n<meta property="og:description" content="'+esc(desc)+'">\n'+
   '<meta property="og:type" content="website">\n<meta name="theme-color" content="'+derive(c.tone).paper+'">\n'+
   '<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'+
-  '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">\n'+
+  '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">\n'+
   '<script type="application/ld+json">'+JSON.stringify(ld)+'<\/script>\n'+
   '<style>html,body{margin:0;padding:0;background:'+derive(c.tone).paper+';-webkit-text-size-adjust:100%}\n'+css+'</style>\n</head>\n<body>\n'+
   '<div class="lp" style="'+toneVars(c)+'">'+renderPage(c)+'</div>\n<script>'+js+'<\/script>\n</body>\n</html>';
@@ -1175,7 +1419,7 @@ var modal=document.getElementById('modal');
 document.getElementById('btn-deploy').onclick=function(){
   document.getElementById('modal-in').innerHTML=
   '<h3>무료로 페이지 올리기</h3>'+
-  '<p>내려받은 <code>index.html</code> 하나면 됩니다. 사진도 파일 안에 들어 있어서 따로 올릴 것이 없습니다.</p>'+
+  '<p>내려받은 <code>index.html</code> 하나면 됩니다. 사진과 영상도 파일 안에 들어 있어서 따로 올릴 것이 없습니다.</p>'+
   '<ol>'+
   '<li><b>가장 빠름 — Netlify Drop</b><br><a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a> 에 파일을 끌어다 놓으면 끝. 회원가입 없이 주소가 생깁니다.</li>'+
   '<li><b>Cloudflare Pages</b><br>파일이 든 폴더를 업로드. 국내 속도가 가장 안정적입니다.</li>'+
