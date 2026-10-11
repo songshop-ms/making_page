@@ -562,6 +562,13 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
 .modal__in ol b{color:#fff}
 .modal__in code{background:#111;padding:2px 6px;font-family:"IBM Plex Mono",monospace;font-size:11.5px}
 .modal__in a{color:#CFCAC1}
+.bar{height:3px;background:#2E2D2A;margin:4px 0 6px}
+.bar i{display:block;height:100%;width:0;background:#E4E2DD;transition:width .2s}
+.sz{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:12.5px}
+.sz th,.sz td{text-align:left;padding:8px 0;border-bottom:1px solid #2E2D2A;font-weight:400}
+.sz th{color:#8C877E;width:42%}
+.sz td{color:#E4E2DD;font-family:"IBM Plex Mono",monospace}
+.warn{color:#E8B4A0!important}
 .mtabs{display:none;position:sticky;top:0;z-index:20;background:#111;border-bottom:1px solid #262523}
 .mtabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:#8C877E;font:inherit;font-size:12px;padding:12px 0;cursor:pointer}
 .mtabs button[aria-pressed=true]{color:#E4E2DD;border-bottom-color:#E4E2DD}
@@ -586,7 +593,7 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
 <div id="app">
   <aside class="ed">
     <div class="ed__top">
-      <div class="ed__title">브로우 아카이브 빌더 <span>V5.4</span></div>
+      <div class="ed__title">브로우 아카이브 빌더 <span>V5.5</span></div>
       <div class="ed__sub">챕터는 끌어서 순서를 바꾸고, 스위치로 껐다 켤 수 있습니다. 제목도 원하는 말로 바꾸세요.</div>
       <div class="ed__acts">
         <button class="b b--go" id="btn-export">페이지 내려받기</button>
@@ -634,6 +641,12 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
 
   // 비포/애프터 클릭 전환
   root.querySelectorAll('.cmp').forEach(function(st){
+    // AFTER 는 가려져 있어 브라우저가 미루기만 한다. BEFORE 가 뜨면 이어서 받아 둔다
+    var bi = st.querySelector('img:not(.aft)'), ai = st.querySelector('img.aft');
+    if(ai){
+      var pre = function(){ ai.loading = 'eager'; };
+      if(!bi || (bi.complete && bi.naturalWidth)) pre(); else bi.addEventListener('load', pre);
+    }
     st.setAttribute('tabindex','0');
     st.setAttribute('role','button');
     st.setAttribute('aria-label','비포 애프터 전환');
@@ -657,6 +670,26 @@ label.f>span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;
       a.style.maxHeight = o ? '0px' : (a.scrollHeight + 'px');
     });
   });
+
+  // 아래쪽 배경 사진·영상은 화면 가까이 왔을 때 받는다
+  function wake(el){
+    var d = el.dataset;
+    if(d.bg){ el.style.backgroundImage = 'url("'+d.bg.replace(/"/g,'%22')+'")'; el.removeAttribute('data-bg'); }
+    if(d.poster){ el.poster = d.poster; el.removeAttribute('data-poster'); }
+    if(d.src){ el.src = d.src; el.removeAttribute('data-src');
+      var pl = el.play && el.play(); if(pl && pl.catch) pl.catch(function(){}); }
+  }
+  var lz = root.querySelectorAll('[data-bg],[data-src]');
+  if('IntersectionObserver' in window){
+    var lio = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ wake(en.target); lio.unobserve(en.target); }
+      });
+    }, {rootMargin:'800px 0px'});
+    lz.forEach(function(el){ lio.observe(el); });
+  } else {
+    lz.forEach(wake);
+  }
 
   // 스크롤 리빌 — 은은하게
   var rv = root.querySelectorAll('.rv');
@@ -835,13 +868,17 @@ function plateVars(o,paper){
   return '--sc:'+sc+';--pg:'+paper+';--pg0:'+rgba(paper,0)+
     ';--ft:'+Math.round(30+fd*80)+'px;--fb:'+Math.round(24+fd*56)+'px;';
 }
-/* 사진·영상 중 있는 것 하나를 배경 층으로 만든다 */
-function plateLayer(o){
+/* 사진·영상 중 있는 것 하나를 배경 층으로 만든다. lazy 면 화면 가까이 와서야 받는다 */
+function plateLayer(o,lazy){
   if(o.video){
-    return '<video class="plate__video" autoplay muted loop playsinline'+
-      (o.videoPoster?' poster="'+esc(o.videoPoster)+'"':'')+'><source src="'+esc(o.video)+'" type="video/mp4"></video>';
+    var pre = lazy ? 'data-' : '';
+    return '<video class="plate__video" autoplay muted loop playsinline'+(lazy?' preload="none"':'')+
+      (o.videoPoster?' '+pre+'poster="'+esc(o.videoPoster)+'"':'')+' '+pre+'src="'+esc(o.video)+'"></video>';
   }
-  if(o.bg){ return '<div class="plate__bg" style="background-image:'+cssurl(o.bg)+'"></div>'; }
+  if(o.bg){
+    return lazy ? '<div class="plate__bg" data-bg="'+esc(o.bg)+'"></div>'
+                : '<div class="plate__bg" style="background-image:'+cssurl(o.bg)+'"></div>';
+  }
   return '';
 }
 
@@ -871,8 +908,8 @@ R.arch = function(s){
   s.tabs.forEach(function(tb,i){
     tb.items.forEach(function(it,j){
       var stage = (it.b||it.a)
-        ? (it.b?'<img src="'+esc(it.b)+'" alt="시술 전">':'<div class="cmp__ph">BEFORE 없음</div>')+
-          (it.a?'<img class="aft" src="'+esc(it.a)+'" alt="시술 후">':'')
+        ? (it.b?'<img src="'+esc(it.b)+'" alt="시술 전" loading="lazy" decoding="async">':'<div class="cmp__ph">BEFORE 없음</div>')+
+          (it.a?'<img class="aft" src="'+esc(it.a)+'" alt="시술 후" loading="lazy" decoding="async">':'')
         : '<div class="cmp__ph">BEFORE / AFTER</div>';
       var hint = (it.b&&it.a)?'<span class="cmp__hint">클릭하여 전환</span>':'';
       items.push('<article class="item rv" data-f="t'+i+'"'+(i===0?'':' hidden')+'><div class="item__grid">'+
@@ -973,7 +1010,7 @@ function renderPage(c){
     var inner = '<div class="gr__l"><span class="lab rv">'+esc(s.label)+'</span></div><div>'+
       (title?'<h2 class="t rv">'+nl(title)+'</h2>':'')+lead+body+'</div>';
 
-    var media = plateLayer(s);
+    var media = plateLayer(s,true);
 
     if(media){
       h.push('<section class="sec plate" id="s-'+s.type+'" style="'+plateVars(s,t.paper)+'">'+
@@ -1075,8 +1112,8 @@ ED.pain = function(s,b){
 ED.artist = function(s,b){
   return T(b+'.name','이름 (제목 자리)')+T(b+'.spec','사양줄')+A(b+'.txt','본문',5)+A(b+'.en','영문 (선택)',2)+
     IMG(b+'.bg','시술자 배경 사진','4:5','세로 · 인물은 위쪽에')+
-    VIDEO(b+'.video','시술자 배경 영상','MP4 · 10MB 이하 권장')+
-    T(b+'.videoPoster','영상 포스터 (선택)')+
+    VIDEO(b+'.video','시술자 배경 영상','올리면 휴대폰용으로 자동으로 줄입니다 · 앞 15초')+
+    IMG(b+'.videoPoster','영상 포스터','','영상이 뜨기 전 보이는 사진 · 비우면 첫 장면')+
     RNG(b+'.scrim','어두운 막 세기',0.55)+
     RNG(b+'.fade','가장자리 번짐',0.5)+
     s.creds.map(function(x,i){ return CARD(pad(i),b+'.creds',i,'<div class="row2">'+T(b+'.creds.'+i+'.k','구분')+T(b+'.creds.'+i+'.v','내용')+'</div>'); }).join('')+
@@ -1162,8 +1199,8 @@ function renderEditor(){
   h.push(FIX('head','표제',
     A('head.title','제목 (한 문장)',3)+T('head.spec','사양줄')+A('head.txt','본문',4)+A('head.en','영문 (선택)',2)+
     IMG('head.bg','표제 배경 사진','4:5','세로 · 인물은 위쪽에')+
-    VIDEO('head.video','표제 배경 영상','MP4 · 10MB 이하 권장')+
-    T('head.videoPoster','영상 포스터 (선택)')+
+    VIDEO('head.video','표제 배경 영상','올리면 휴대폰용으로 자동으로 줄입니다 · 앞 15초')+
+    IMG('head.videoPoster','영상 포스터','','영상이 뜨기 전 보이는 사진 · 비우면 첫 장면')+
     RNG('head.scrim','어두운 막 세기',0.45)+
     RNG('head.fade','가장자리 번짐',0.5)+
     HINT('배경 사진과 영상 중 하나만 사용됩니다. 미디어를 넣으면 어두운 막이 깔리고 글자가 흰색으로 뒤집힙니다. 막은 위가 옅고 글이 놓이는 아래로 갈수록 짙어집니다. 사진이 밝거나 흰 옷·흰 벽이 많으면 세기를 55~70%까지 올리세요. 가장자리 번짐을 0으로 내리면 사진이 끝까지 꽉 차고, 올리면 위아래가 종이색으로 스며들어 앞뒤와 이어집니다. 미디어를 넣지 않으면 종이색 그대로 유지됩니다.'), op['head']));
@@ -1298,7 +1335,8 @@ edBody.addEventListener('click', function(e){
     if(a.length<=1){ toast('최소 하나는 남겨두세요'); return; }
     a.splice(+el.getAttribute('data-i'),1); refresh(true); return; }
   if(el.hasAttribute('data-imgdel')){ set(el.getAttribute('data-imgdel'),''); refresh(true); return; }
-  if(el.hasAttribute('data-videodel')){ set(el.getAttribute('data-videodel'),''); refresh(true); return; }
+  if(el.hasAttribute('data-videodel')){ var vp=el.getAttribute('data-videodel');
+    set(vp,''); set(vp+'Poster',''); refresh(true); return; }
   if(el.hasAttribute('data-img')){
     pendingImgPath = el.getAttribute('data-img');
     fImg.value='';
@@ -1354,30 +1392,120 @@ fImg.addEventListener('change', function(){
   fr.readAsDataURL(f);
 });
 
+/* ---------- 휴대폰용으로 줄이기 ---------- */
+/* 사진은 긴 변 기준(배경 1440, 나머지 1080) WebP, 영상은 짧은 변 720 · 1.5Mbps · 소리 없음 · 앞 15초 */
+var PHOTO_BG = 1440, PHOTO_EDGE = 1080;
+var VIDEO_EDGE = 720, VIDEO_RATE = 1500000, VIDEO_MAX_SEC = 15, VIDEO_IN_MAX = 500*1024*1024;
+var MB_URL = 'https://cdn.jsdelivr.net/npm/mediabunny@1.59.1/dist/bundles/mediabunny.min.mjs';
+var mbLib = null;
+function loadMB(){ return mbLib || (mbLib = import(MB_URL).catch(function(e){ mbLib = null; throw e; })); }
+
+function mbStr(n){ return n < 1048576 ? Math.max(1,Math.round(n/1024))+'KB' : (n/1048576).toFixed(n < 10485760 ? 1 : 0)+'MB'; }
+function blobOf(dataUrl){ return fetch(dataUrl).then(function(r){ return r.blob(); }); }
+function dataUrlOf(blob){ return new Promise(function(ok,no){
+  var fr = new FileReader(); fr.onload = function(){ ok(fr.result); }; fr.onerror = no; fr.readAsDataURL(blob); }); }
+function loadImg(src){ return new Promise(function(ok,no){
+  var im = new Image(); im.onload = function(){ ok(im); }; im.onerror = no; im.src = src; }); }
+function canvasBlob(cv,type,q){ return new Promise(function(ok){ cv.toBlob(ok,type,q); }); }
+
+async function shrinkImage(src, edge){
+  var im = await loadImg(src);
+  var w = im.naturalWidth, h = im.naturalHeight, r = Math.min(1, edge/Math.max(w,h));
+  w = Math.round(w*r); h = Math.round(h*r);
+  var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  var cx = cv.getContext('2d'); cx.imageSmoothingQuality = 'high'; cx.drawImage(im,0,0,w,h);
+  var b = await canvasBlob(cv,'image/webp',0.8);
+  // 사파리는 WebP 로 저장하지 못하고 PNG 를 돌려준다
+  if(!b || b.type !== 'image/webp') b = await canvasBlob(cv,'image/jpeg',0.82);
+  return b;
+}
+
+async function shrinkVideo(blob, onProgress){
+  if(!('VideoEncoder' in window)) throw new Error('no-webcodecs');
+  var MB = await loadMB();
+  var input = new MB.Input({source:new MB.BlobSource(blob), formats:MB.ALL_FORMATS});
+  var vt = await input.getPrimaryVideoTrack();
+  if(!vt) throw new Error('no-video');
+  var w = vt.displayWidth, h = vt.displayHeight, r = Math.min(1, VIDEO_EDGE/Math.min(w,h));
+  var dur = await input.computeDuration(), cut = dur > VIDEO_MAX_SEC + 0.5;
+  var fps = 30;
+  try{ var st = await vt.computePacketStats(60); if(st.averagePacketRate && st.averagePacketRate < 30) fps = 0; }catch(e){}
+  var vopt = {width:Math.round(w*r/2)*2, height:Math.round(h*r/2)*2, fit:'cover', codec:'avc',
+    quality:new MB.Quality({bitrate:VIDEO_RATE}), forceTranscode:true};
+  if(fps) vopt.frameRate = fps;
+  var output = new MB.Output({format:new MB.Mp4OutputFormat({fastStart:'in-memory'}), target:new MB.BufferTarget()});
+  var opts = {input:input, output:output, tracks:'primary', showWarnings:false, video:vopt, audio:{discard:true}};
+  if(cut) opts.trim = {start:0, end:VIDEO_MAX_SEC};
+  var conv = await MB.Conversion.init(opts);
+  if(!conv.isValid) throw new Error('cannot-convert');
+  if(onProgress) conv.onProgress = onProgress;
+  await conv.execute();
+  return {blob:new Blob([output.target.buffer],{type:'video/mp4'}), cut:cut};
+}
+
+/* 영상 첫 장면을 포스터 사진으로 */
+function posterOf(blob){ return new Promise(function(ok){
+  var v = document.createElement('video'), u = URL.createObjectURL(blob), end = false;
+  function fin(x){ if(end) return; end = true; URL.revokeObjectURL(u); ok(x); }
+  v.muted = true; v.playsInline = true; v.preload = 'auto';
+  v.onloadeddata = function(){ v.currentTime = Math.min(0.1, (v.duration||1)/2); };
+  v.onseeked = function(){
+    try{ var cv = document.createElement('canvas'); cv.width = v.videoWidth; cv.height = v.videoHeight;
+      cv.getContext('2d').drawImage(v,0,0); fin(cv.toDataURL('image/jpeg',0.82)); }catch(e){ fin(''); } };
+  v.onerror = function(){ fin(''); };
+  setTimeout(function(){ fin(''); }, 8000);
+  v.src = u;
+}); }
+
+/* 작업 중 창 */
+function busy(title,msg){
+  document.getElementById('modal-in').innerHTML = '<h3>'+esc(title)+'</h3><p id="busy-msg">'+esc(msg||'')+'</p>'+
+    '<div class="bar"><i id="busy-bar"></i></div>';
+  modal.classList.add('on','modal--busy');
+}
+function busyMsg(msg,p){
+  var m = document.getElementById('busy-msg'); if(m && msg!=null) m.textContent = msg;
+  var b = document.getElementById('busy-bar'); if(b && p!=null) b.style.width = Math.round(p*100)+'%';
+}
+function busyEnd(){ modal.classList.remove('on','modal--busy'); }
+
 var pendingVideoPath = null;
 var fVideo = document.getElementById('file-video');
-fVideo.addEventListener('change', function(){
+fVideo.addEventListener('change', async function(){
   var f = this.files && this.files[0];
   if(!f || !pendingVideoPath) return;
 
   var targetPath = pendingVideoPath;
   pendingVideoPath = null;
 
-  if(f.size > 15*1024*1024){
-    toast('영상은 15MB 이하로 올려주세요');
+  if(f.size > VIDEO_IN_MAX){
+    toast('영상은 500MB 이하로 올려주세요');
     return;
   }
 
-  var fr = new FileReader();
-  fr.onload = function(){
-    set(targetPath, fr.result);
-    refresh(true);
-    toast('영상을 적용했습니다');
-  };
-  fr.onerror = function(){
-    toast('파일을 읽을 수 없습니다');
-  };
-  fr.readAsDataURL(f);
+  busy('영상 줄이는 중','휴대폰에서 빨리 뜨도록 줄이고 있습니다. 창을 닫지 마세요.');
+  var out = f, note = '';
+  try{
+    var r = await shrinkVideo(f, function(p){ busyMsg(null,p); });
+    if(r.cut || r.blob.size < f.size) out = r.blob;
+    if(r.cut) note = ' · 앞 15초만 사용';
+  }catch(err){
+    console.warn(err);
+    if(f.size > 15*1024*1024){
+      busyEnd();
+      toast('이 브라우저에서는 영상을 줄일 수 없습니다. 크롬 최신 버전에서 다시 올려주세요');
+      return;
+    }
+    note = ' · 원본 그대로';
+  }
+  try{
+    set(targetPath, await dataUrlOf(out));
+    if(!get(targetPath+'Poster')){ var ps = await posterOf(out); if(ps) set(targetPath+'Poster', ps); }
+    busyEnd(); refresh(true);
+    toast('영상을 적용했습니다 · '+mbStr(out.size)+note);
+  }catch(err){
+    busyEnd(); toast('파일을 읽을 수 없습니다');
+  }
 });
 
 function buildDoc(c){
@@ -1399,10 +1527,119 @@ function buildDoc(c){
   '<style>html,body{margin:0;padding:0;background:'+derive(c.tone).paper+';-webkit-text-size-adjust:100%}\n'+css+'</style>\n</head>\n<body>\n'+
   '<div class="lp" style="'+toneVars(c)+'">'+renderPage(c)+'</div>\n<script>'+js+'<\/script>\n</body>\n</html>';
 }
-function dl(n,t,ty){ var b=new Blob([t],{type:ty||'text/plain;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');
-  a.href=u; a.download=n; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(u);a.remove();},400); }
+function dl(n,t,ty){ var b=(t instanceof Blob)?t:new Blob([t],{type:ty||'text/plain;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');
+  a.href=u; a.download=n; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(u);a.remove();},4000); }
 
-document.getElementById('btn-export').onclick=function(){ dl('index.html',buildDoc(cfg),'text/html;charset=utf-8'); toast('index.html 을 내려받았습니다'); };
+/* ---------- zip — 사진·영상은 이미 압축돼 있어서 묶기만 한다 ---------- */
+var CRC = (function(){ var t=new Uint32Array(256);
+  for(var n=0;n<256;n++){ var c=n; for(var k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+function crc32(u){ var c=0xFFFFFFFF; for(var i=0;i<u.length;i++) c=CRC[(c^u[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function fnv(u){ var h=0x811c9dc5; for(var i=0;i<u.length;i++){ h^=u[i]; h=Math.imul(h,0x01000193); }
+  return ('0000000'+(h>>>0).toString(16)).slice(-8); }
+function zip(files){
+  var enc=new TextEncoder(), parts=[], cen=[], off=0, cl=0, d=new Date();
+  var tm=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1);
+  var dt=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+  files.forEach(function(f){
+    var nm=enc.encode(f.name), sz=f.data.length, crc=crc32(f.data);
+    var lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true);
+    lh.setUint16(10,tm,true); lh.setUint16(12,dt,true); lh.setUint32(14,crc,true);
+    lh.setUint32(18,sz,true); lh.setUint32(22,sz,true); lh.setUint16(26,nm.length,true);
+    parts.push(lh, nm, f.data);
+    var ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true);
+    ch.setUint16(12,tm,true); ch.setUint16(14,dt,true); ch.setUint32(16,crc,true);
+    ch.setUint32(20,sz,true); ch.setUint32(24,sz,true); ch.setUint16(28,nm.length,true); ch.setUint32(42,off,true);
+    cen.push(ch, nm);
+    off += 30+nm.length+sz; cl += 46+nm.length;
+  });
+  var e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true); e.setUint16(8,files.length,true); e.setUint16(10,files.length,true);
+  e.setUint32(12,cl,true); e.setUint32(16,off,true);
+  return new Blob(parts.concat(cen,[e]),{type:'application/zip'});
+}
+
+/* ---------- 페이지 내려받기 — 휴대폰용으로 줄여 index.html + media 폴더를 zip 하나로 ---------- */
+/* 파일 이름에 내용 지문이 붙어 있어서 _headers 로 1년 캐시를 걸어도 고친 사진은 새로 받는다 */
+var HEADERS = '/media/*\n  Cache-Control: public, max-age=31536000, immutable\n';
+var EXT = {'image/webp':'webp','image/jpeg':'jpg','image/png':'png','image/gif':'gif',
+  'video/mp4':'mp4','video/quicktime':'mov','video/webm':'webm'};
+var exporting = false;
+async function exportPage(){
+  if(exporting) return; exporting = true;
+  busy('페이지 만드는 중','사진과 영상을 휴대폰에 맞게 줄이고 있습니다.');
+  try{
+    var enc = new TextEncoder();
+    var c = JSON.parse(JSON.stringify(cfg));
+    c.sections = c.sections.filter(function(s){ return s.on !== false; });
+    var old = new Blob([buildDoc(c)]).size;
+
+    var jobs = [];
+    (function walk(o){ Object.keys(o).forEach(function(k){ var v=o[k];
+      if(typeof v==='string'){ if(v.indexOf('data:')===0) jobs.push({o:o,k:k}); }
+      else if(v && typeof v==='object') walk(v); }); })(c);
+
+    var done = new Map(), files = [], size = {}, cnt = {photo:0, video:0};
+    for(var i=0;i<jobs.length;i++){
+      var j = jobs[i], v = j.o[j.k];
+      if(!done.has(v)){
+        busyMsg((i+1)+' / '+jobs.length+' 줄이는 중', i/jobs.length);
+        var src = await blobOf(v), out = src, isV = /^data:video\//.test(v);
+        if(isV){
+          // 올릴 때 이미 줄였으면 그대로, 예전 설정 파일의 원본 영상이면 여기서 줄인다
+          if(src.size > 4*1048576){
+            try{ var r = await shrinkVideo(src, function(p){ busyMsg(null,(i+p)/jobs.length); });
+              if(r.cut || r.blob.size < src.size) out = r.blob; }catch(err){ console.warn(err); }
+          }
+        } else {
+          try{ var b = await shrinkImage(v, (j.k==='bg'||j.k==='videoPoster') ? PHOTO_BG : PHOTO_EDGE);
+            if(b && (b.size < src.size || !EXT[src.type])) out = b; }catch(err){ console.warn(err); }
+        }
+        var u8 = new Uint8Array(await out.arrayBuffer());
+        var kind = isV ? 'video' : 'photo'; cnt[kind]++;
+        var name = 'media/'+kind+'-'+pad(cnt[kind]-1)+'-'+fnv(u8)+'.'+(EXT[out.type] || (isV?'mp4':'jpg'));
+        files.push({name:name, data:u8}); size[name] = u8.length;
+        done.set(v, name);
+      }
+      j.o[j.k] = done.get(v);
+    }
+    busyMsg('묶는 중', 1);
+
+    var html = enc.encode(buildDoc(c));
+    files.unshift({name:'index.html', data:html});
+    files.push({name:'_headers', data:enc.encode(HEADERS)});
+    var blob = zip(files);
+    var fname = (String(c.brand.name||'').replace(/[\\\/:*?"<>|\s]+/g,'') || 'my')+'_페이지.zip';
+    dl(fname, blob);
+
+    // 첫 화면 = 글 + 표제의 영상·포스터 또는 배경 사진
+    var h = c.head, first = html.length +
+      (h.video ? (size[h.video]||0) + (size[h.videoPoster]||0) : (size[h.bg]||0));
+    busyEnd();
+    showResult({name:fname, total:blob.size, old:old, first:first, photo:cnt.photo, video:cnt.video,
+      big:files.some(function(f){ return f.data.length > 25*1048576; })});
+  }catch(err){
+    console.error(err); busyEnd(); toast('내려받기 중 오류가 났습니다. 다시 눌러 주세요');
+  }finally{ exporting = false; }
+}
+function showResult(r){
+  document.getElementById('modal-in').innerHTML =
+    '<h3>내려받기 완료</h3>'+
+    '<p><code>'+esc(r.name)+'</code> 파일이 내려받기 폴더에 저장됐습니다. 압축을 풀지 말고 이 파일 그대로 올리면 됩니다.</p>'+
+    '<table class="sz">'+
+      '<tr><th>전체</th><td>'+mbStr(r.total)+(r.old > r.total*1.1 ? ' <span style="color:#8C877E">(줄이기 전 '+mbStr(r.old)+')</span>' : '')+'</td></tr>'+
+      '<tr><th>첫 화면에서 받는 양</th><td>'+mbStr(r.first)+'</td></tr>'+
+      '<tr><th>사진 · 영상</th><td>'+r.photo+'장 · '+r.video+'개</td></tr>'+
+    '</table>'+
+    (r.big ? '<p class="warn">25MB가 넘는 파일이 있어 클라우드플레어에 올라가지 않습니다. 영상을 더 짧게 잘라 다시 올려 주세요.</p>' : '')+
+    '<p><button class="b b--go" id="go-deploy">배포하는 법 보기</button> '+
+    '<button class="b" onclick="document.getElementById(\'modal\').classList.remove(\'on\')">닫기</button></p>';
+  document.getElementById('go-deploy').onclick = function(){ document.getElementById('btn-deploy').click(); };
+  modal.classList.add('on');
+}
+
+document.getElementById('btn-export').onclick=exportPage;
 document.getElementById('btn-save').onclick=function(){ dl('landing-settings.json',JSON.stringify(cfg,null,2),'application/json'); toast('설정을 저장했습니다'); };
 var fJson=document.getElementById('file-json');
 document.getElementById('btn-load').onclick=function(){ fJson.value=''; fJson.click(); };
@@ -1430,7 +1667,7 @@ document.getElementById('btn-deploy').onclick=function(){
   '<p><button class="b b--go" onclick="document.getElementById(\'modal\').classList.remove(\'on\')">닫기</button></p>';
   modal.classList.add('on');
 };
-modal.addEventListener('click',function(e){ if(e.target===modal) modal.classList.remove('on'); });
+modal.addEventListener('click',function(e){ if(e.target===modal && !modal.classList.contains('modal--busy')) modal.classList.remove('on'); });
 
 var frame=document.getElementById('frame'),vd=document.getElementById('vp-d'),vm=document.getElementById('vp-m');
 vd.onclick=function(){ frame.classList.remove('frame--m'); vd.setAttribute('aria-pressed','true'); vm.setAttribute('aria-pressed','false'); };
