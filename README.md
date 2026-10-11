@@ -8,7 +8,21 @@
 
 ---
 
-## 올리는 법
+## 만든 페이지 올리는 법
+
+빌더에서 **페이지 내려받기** 로 받은 zip 파일을 클라우드플레어에 끌어다 놓으면 `이름.pages.dev` 주소가 생깁니다.
+가입부터 다시 올리기까지 그림으로 한 단계씩 보려면 [deploy.html](deploy.html) 을 여세요.
+
+1. [dash.cloudflare.com/sign-up](https://dash.cloudflare.com/sign-up) 에서 가입 (구글 계정이 가장 쉬움)
+2. 왼쪽 메뉴 **Compute → Workers & Pages → Create application**
+3. 맨 아래 작은 글씨 **Continue to Pages** → **Drag and drop your files** 의 **Get started**
+4. **Project name** 에 영어 소문자로 이름 → **Create project**
+5. 점선 상자에 zip 파일을 끌어다 놓기 → **Deploy site**
+6. 고친 뒤에는 프로젝트 이름 → **Create deployment** → 새 zip → **Save and deploy**
+
+---
+
+## 빌더를 내 깃헙에 올리는 법
 
 1. 깃헙에서 새 저장소를 만듭니다. (Public)
 2. 이 폴더의 파일을 저장소 최상단에 올립니다. `.nojekyll` 도 빠뜨리지 마세요.
@@ -37,9 +51,17 @@
 
 ### 내보내기
 
-**페이지 내려받기** 를 누르면 `index.html` 한 개가 만들어집니다.
-사진까지 파일 안에 들어 있어서 따로 올릴 것이 없습니다.
-Netlify Drop, Cloudflare Pages, Vercel, 깃헙 페이지 어디에 올려도 그대로 동작합니다.
+**페이지 내려받기** 를 누르면 `가게이름_페이지.zip` 하나가 만들어집니다.
+안에는 `index.html` 과 `media` 폴더, 캐시 설정 `_headers` 가 들어 있습니다.
+
+내려받을 때 휴대폰에 맞게 저절로 줄입니다.
+
+- **사진** — 긴 변 1080px(배경 사진은 1440px), WebP. 사파리에서는 JPEG
+- **영상** — 올리는 순간 짧은 변 720p · H.264 · 소리 없음 · 앞 15초로 줄이고, 첫 장면을 포스터 사진으로 만듭니다
+- **불러오기** — 첫 화면 아래의 사진과 배경은 손님이 스크롤해 가까이 왔을 때 받습니다
+
+내려받은 뒤 전체 용량과 첫 화면에서 받는 양을 보여 줍니다. 클라우드플레어는 파일 하나에 25MB까지 받으므로 넘으면 경고합니다.
+영상 줄이기는 브라우저의 WebCodecs 와 [Mediabunny](https://mediabunny.dev) 로 하고, 영상을 올릴 때만 받아옵니다.
 
 **설정 저장** 으로 받아둔 `landing-settings.json` 을 보관하세요.
 나중에 **불러오기** 로 열면 이어서 고칠 수 있습니다. 이 파일이 없으면 처음부터 다시 채워야 합니다.
@@ -70,6 +92,8 @@ Netlify Drop, Cloudflare Pages, Vercel, 깃헙 페이지 어디에 올려도 그
 
 ```
 index.html     빌더 전체 (HTML · CSS · JS 한 파일)
+deploy.html    만든 페이지를 클라우드플레어에 올리는 그림 안내
+guide/         안내에 쓰는 화면 캡처
 .nojekyll      깃헙이 파일을 건드리지 않게 하는 표시
 robots.txt     검색 로봇 안내
 .gitignore     저장소에 올리지 않을 것들
@@ -77,7 +101,7 @@ LICENSE        MIT
 README.md      이 문서
 ```
 
-바깥에서 받아오는 것은 구글 폰트(IBM Plex Sans KR · IBM Plex Mono)뿐입니다.
+바깥에서 받아오는 것은 구글 폰트(IBM Plex Sans KR · IBM Plex Mono)와, 영상을 올릴 때의 Mediabunny 뿐입니다.
 사진은 브라우저 안에서만 처리되고 어디로도 전송되지 않습니다.
 
 ---
@@ -86,6 +110,7 @@ README.md      이 문서
 
 크롬, 사파리, 엣지, 파이어폭스 최신 버전에서 동작합니다.
 사진 처리에 Canvas, 내려받기에 Blob 을 쓰기 때문에 인터넷 익스플로러에서는 열리지 않습니다.
+영상 줄이기는 WebCodecs 가 있는 크롬 · 엣지 · 사파리 최신 버전에서 됩니다. 안 되는 브라우저에서는 15MB 이하 영상만 원본 그대로 넣습니다.
 
 ## 라이선스
 
